@@ -1,0 +1,1810 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#b5391c">
+  <title>Quản lý trại gà</title>
+  <style>
+    :root {
+      --green-950: #4a2414;
+      --green-800: #b5391c;
+      --green-700: #d04a25;
+      --green-100: #fbebdd;
+      --cream: #fbf8f1;
+      --ink: #2b1f17;
+      --muted: #7a6858;
+      --line: #eaddc8;
+      --white: #ffffff;
+      --red: #b42318;
+      --red-soft: #fff0ee;
+      --amber: #f59e0b;
+      --shadow: 0 12px 28px rgba(74, 36, 20, .09);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fdf1dd 0, var(--cream) 340px);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+    button, input, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid rgba(181, 57, 28, .3); outline-offset: 2px; }
+    .app { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 30px 0 50px; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 26px; }
+    .brand { display: flex; gap: 14px; align-items: center; }
+    .brand-mark {
+      width: 48px; height: 48px; display: grid; place-items: center; flex: 0 0 auto;
+      border-radius: 15px; color: #fff; background: var(--green-800); box-shadow: 0 8px 18px rgba(22, 101, 52, .22);
+    }
+    .brand-mark svg { width: 28px; height: 28px; }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.15; letter-spacing: -.035em; }
+    .subtitle { color: var(--muted); margin-top: 4px; }
+    .storage-note { color: var(--green-800); font-size: .88rem; white-space: nowrap; margin-top: 6px; }
+    body.is-viewer .storage-note { color: #8a4b00; }
+    .storage-note::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22a254; margin-right: 7px; }
+    .card { background: rgba(255,255,255,.94); border: 1px solid rgba(220,229,220,.92); border-radius: 18px; box-shadow: var(--shadow); }
+    .entry-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; margin-bottom: 18px; }
+    .bottom-layout { display: grid; grid-template-columns: minmax(250px, .8fr) minmax(0, 1.7fr); gap: 18px; margin-top: 18px; align-items: stretch; }
+    .bottom-layout .sync-card { grid-column: 1 / -1; }
+    .form-card { padding: 22px; }
+    .form-card #formBody { margin-top: 12px; }
+    .lock-notice { margin: 0 0 10px; padding: 9px 12px; border-radius: 10px; background: #fdecef; color: #a3232f; font-size: .88rem; font-weight: 600; }
+    .lock-tag { opacity: .7; }
+    .button:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
+    .section-title { font-size: 1.05rem; font-weight: 750; letter-spacing: -.015em; }
+    .section-description { color: var(--muted); font-size: .91rem; margin-top: 3px; }
+    .fields { display: grid; grid-template-columns: 1.2fr repeat(4, 1fr); gap: 12px; margin-top: 17px; }
+    label { display: block; font-weight: 650; font-size: .88rem; color: #344238; }
+    input, textarea {
+      display: block; width: 100%; border: 1px solid #cbd8cd; border-radius: 10px; color: var(--ink); background: #fff; padding: 10px 11px; margin-top: 6px;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    input:hover, textarea:hover { border-color: #9bb9a0; }
+    input[type="number"] { text-align: right; }
+    textarea { min-height: 43px; resize: vertical; }
+    .note-field { margin-top: 12px; }
+    #whiteEggs { background: #fff6cc; border-color: #e6cf6b; }
+    #whiteEggs:hover { border-color: #d4b93f; }
+    #redEggs { background: #ffe3df; border-color: #eba39b; }
+    #redEggs:hover { border-color: #dc7f74; }
+    #whiteEggs:focus-visible { outline-color: rgba(212, 185, 63, .45); background: #fffbe0; }
+    #redEggs:focus-visible { outline-color: rgba(220, 38, 38, .3); background: #fff0ee; }
+    .form-actions { display: flex; align-items: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .button { appearance: none; border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 720; transition: transform .12s, background .12s, box-shadow .12s; }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { color: #fff; background: var(--green-800); box-shadow: 0 7px 13px rgba(181,57,28,.2); }
+    .button-primary:hover { background: var(--green-700); }
+    .button-secondary { color: var(--green-800); background: var(--green-100); }
+    .button-danger { color: var(--red); background: var(--red-soft); }
+    .button-plain { color: var(--muted); background: transparent; padding-inline: 8px; }
+    .edit-notice { display: none; padding: 6px 9px; border-radius: 8px; font-size: .86rem; color: #8a4b00; background: #fff6df; }
+    .edit-notice.show { display: inline-block; }
+    .settings-card { padding: 21px; }
+    .settings-card h2 { font-size: 1.02rem; }
+    .settings-card p { color: var(--muted); font-size: .89rem; margin-top: 5px; }
+    .settings-card label { margin-top: 16px; }
+    .settings-card .help { color: var(--muted); font-size: .78rem; margin-top: 7px; }
+    .settings-card .button { width: 100%; margin-top: 12px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat { padding: 17px 17px 14px; min-height: 113px; }
+    .stat-label { color: var(--muted); font-weight: 650; font-size: .82rem; }
+    .stat-value { font-size: clamp(1.34rem, 2.5vw, 1.85rem); font-weight: 780; letter-spacing: -.045em; margin-top: 7px; line-height: 1.05; }
+    .stat-detail { color: var(--muted); font-size: .79rem; margin-top: 7px; }
+    .stat .red-value { color: var(--red); }
+    .stat .green-value { color: var(--green-800); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; margin-bottom: 18px; align-items: stretch; }
+    .dashboard-grid .today-card { display: flex; flex-direction: column; } .dashboard-grid .today-summary { flex: 1; grid-auto-rows: 1fr; }
+    @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    .chart-card, .today-card, .history-card { padding: 21px; }
+    .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+    .card-head h2 { font-size: 1.05rem; letter-spacing: -.015em; }
+    .card-head span { color: var(--muted); font-size: .82rem; }
+    .chart-wrap { position: relative; height: 300px; }
+    canvas { width: 100%; height: 100%; }
+    .dashboard-grid .chart-card { display: flex; flex-direction: column; }
+    .dashboard-grid .chart-wrap { flex: 1; height: auto; min-height: 440px; }
+    .dashboard-grid .chart-wrap canvas { position: absolute; inset: 0; }
+    .legend { display: flex; gap: 16px; align-items: center; margin-top: 7px; color: var(--muted); font-size: .8rem; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+    .white-dot { background: #d9a400; }
+    .red-dot { background: #c8372d; }
+    .broken-dot { background: #d97706; }
+    .today-summary { display: grid; gap: 1px; background: var(--line); border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
+    .today-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 16px; min-height: 58px; background: #fff; border-left: 5px solid var(--rc, #9bb0a1); }
+    .today-row span { color: #2f3c33; font-size: 1rem; font-weight: 650; }
+    .today-row strong { font-size: 1.3rem; line-height: 1.2; font-weight: 800; color: var(--rc, #0f2a1b); letter-spacing: -.01em; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+    .today-row:nth-child(1) { --rc: #b08400; background: #fffbe8; }
+    .today-row:nth-child(2) { --rc: #c0392b; background: #fff1ee; }
+    .today-row:nth-child(3) { --rc: #d97706; background: #fff5e6; }
+    .today-row:nth-child(4) { --rc: #6b7684; background: #f4f6f8; }
+    .today-row:nth-child(5) { --rc: #b3243b; background: #fdecef; }
+    .today-row:nth-child(6) { --rc: #8a5a2b; background: #f7ece0; }
+    .today-row.rate { --rc: #1a7f43; background: #e7f6ec; }
+    .today-row.rate span { color: #14602f; font-weight: 750; }
+    .today-empty { color: var(--muted); padding: 18px 0 10px; font-size: .92rem; }
+    .history-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 13px; flex-wrap: wrap; }
+    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .toolbar-actions .button { font-size: .84rem; padding: 8px 10px; }
+    .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; min-width: 1000px; border-collapse: collapse; font-size: .88rem; }
+    th { text-align: left; padding: 11px 12px; font-size: .78rem; color: #526157; background: #f7efe0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th.number, td.number { text-align: right; }
+    td { padding: 11px 12px; border-bottom: 1px solid #edf1ed; vertical-align: middle; }
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: #fffdf8; }
+    td.note { max-width: 205px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .table-action { display: inline-flex; gap: 4px; }
+    .small-button { border: 0; border-radius: 7px; background: transparent; padding: 5px 7px; color: var(--green-800); font-size: .82rem; font-weight: 700; }
+    .small-button:hover { background: var(--green-100); }
+    .small-button.delete { color: var(--red); }
+    .small-button.delete:hover { background: var(--red-soft); }
+    .pager { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 13px; flex-wrap: wrap; }
+    .pager button { min-width: 36px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--green-800); padding: 7px 10px; font-weight: 700; font-size: .85rem; }
+    .pager button:hover:not(:disabled) { background: var(--green-100); }
+    .pager button[aria-current="page"] { background: var(--green-800); border-color: var(--green-800); color: #fff; }
+    .pager button:disabled { opacity: .4; cursor: default; }
+    .pager .gap { color: var(--muted); padding: 0 2px; }
+    .empty-row { padding: 30px 18px; text-align: center; color: var(--muted); }
+    .footer { color: var(--muted); font-size: .78rem; padding: 14px 3px 0; }
+    .toast { position: fixed; z-index: 5; right: 22px; bottom: 22px; display: flex; align-items: center; gap: 9px; max-width: min(390px, calc(100vw - 44px)); padding: 12px 14px; border-radius: 12px; color: #fff; background: var(--green-950); box-shadow: 0 14px 32px rgba(11, 39, 23, .24); transform: translateY(80px); opacity: 0; pointer-events: none; transition: transform .2s ease, opacity .2s ease; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: #8d2119; }
+    .toast-icon { width: 18px; height: 18px; flex: 0 0 auto; }
+    .hidden-input { display: none; }
+    [hidden] { display: none !important; }
+    tbody tr.clickable { cursor: pointer; }
+    tbody tr.clickable:hover td { background: #fdf5e8; }
+    .care-card { padding: 21px; margin-bottom: 18px; }
+    .care-group { margin-top: 14px; }
+    .care-group h3 { font-size: .85rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 8px; }
+    .care-item { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; margin-bottom: 8px; }
+    .care-tag { flex: 0 0 auto; align-self: flex-start; padding: 3px 9px; border-radius: 999px; font-size: .74rem; font-weight: 750; white-space: nowrap; }
+    .care-item.vaccine .care-tag { background: #e6f0ff; color: #1d4ed8; }
+    .care-item.calcium .care-tag { background: #fff6cc; color: #8a6200; }
+    .care-item.feed .care-tag { background: #fbebdd; color: #b5391c; }
+    .care-item.health .care-tag { background: #fde8f3; color: #9d174d; }
+    .care-title { font-weight: 720; }
+    .care-text { font-size: .88rem; color: #3f4f44; margin-top: 2px; }
+    .care-src { font-size: .78rem; color: var(--muted); margin-top: 4px; }
+    .care-src a { color: var(--green-800); }
+    .care-empty { color: var(--muted); font-size: .9rem; }
+    .care-note { background: #fff6df; border: 1px solid #ecd08a; color: #6b4300; border-radius: 12px; padding: 11px 14px; font-size: .84rem; margin-top: 12px; }
+    .care-card details { margin-top: 12px; }
+    .care-card summary { cursor: pointer; font-weight: 700; color: var(--green-800); }
+    .care-card details ul { margin: 8px 0 0; padding-left: 18px; font-size: .84rem; color: #3f4f44; }
+    .care-toggle { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+    .care-heading { font-size: 1.05rem; font-weight: 750; letter-spacing: -.015em; }
+    .care-age { margin-left: auto; color: var(--muted); font-size: .82rem; text-align: right; }
+    .care-age.has-upcoming { color: #8a4b00; font-weight: 650; }
+    .care-chevron { color: var(--green-800); font-size: 1.4rem; line-height: 1; transition: transform .15s; }
+    .care-toggle[aria-expanded="true"] .care-chevron { transform: rotate(90deg); }
+    .care-toggle:hover .care-heading { color: var(--green-800); }
+    #careBody { margin-top: 6px; }
+    .modal-care { margin-top: 16px; }
+    .modal-care summary { cursor: pointer; font-weight: 750; font-size: .95rem; color: var(--green-800); }
+    @media (max-width: 620px) { .care-toggle { flex-wrap: wrap; } .care-age { order: 3; margin-left: 0; flex-basis: 100%; text-align: left; } .care-chevron { margin-left: auto; } }
+    .modal { position: fixed; inset: 0; z-index: 20; display: flex; align-items: flex-start; justify-content: center; padding: 24px 12px; overflow: auto; background: rgba(62, 30, 16, .45); }
+    .modal-card { position: relative; width: min(760px, 100%); background: #fff; border-radius: 18px; box-shadow: 0 24px 60px rgba(62, 30, 16, .3); padding: 22px; }
+    .modal-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0; border-radius: 10px; background: var(--green-100); color: var(--green-800); font-size: 1.3rem; line-height: 1; }
+    .modal-card h2 { font-size: 1.2rem; padding-right: 44px; letter-spacing: -.02em; }
+    .modal-sub { color: var(--muted); font-size: .9rem; margin-top: 3px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 16px 0; }
+    .metric { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+    .metric span { display: block; color: var(--muted); font-size: .78rem; font-weight: 650; }
+    .metric strong { display: block; font-size: 1.15rem; margin-top: 2px; letter-spacing: -.02em; }
+    .metric small { display: block; color: var(--muted); font-size: .74rem; }
+    .modal-card h3.modal-h { font-size: .95rem; margin: 16px 0 8px; }
+    .modal-card .alert-zone { margin-bottom: 0; }
+    @media (max-width: 620px) { .metric-grid { grid-template-columns: 1fr 1fr; } .modal-card { padding: 16px; } .care-card { padding: 16px; } .care-item { flex-direction: column; gap: 6px; } }
+    .alert-zone { display: grid; gap: 10px; margin-bottom: 18px; }
+    .alert-item { display: flex; gap: 12px; align-items: flex-start; padding: 13px 16px; border-radius: 14px; border: 1px solid; }
+    .alert-item.danger { background: #fff0ee; border-color: #f0b4ad; color: #7a1a12; }
+    .alert-item.warn { background: #fff6df; border-color: #ecd08a; color: #6b4300; }
+    .alert-item.ok { background: #fbebdd; border-color: #bfe0c7; color: #14532d; }
+    .alert-icon { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .85rem; color: #fff; margin-top: 1px; }
+    .alert-item.danger .alert-icon { background: var(--red); }
+    .alert-item.warn .alert-icon { background: #d97706; }
+    .alert-item.ok .alert-icon { background: #22a254; }
+    .alert-title { font-weight: 750; }
+    .alert-text { font-size: .9rem; margin-top: 2px; }
+    .alert-date { font-size: .8rem; opacity: .75; margin-top: 2px; }
+    .alert-settings { padding: 21px; }
+    .alert-fields { align-items: end; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .alert-settings .help { color: var(--muted); font-size: .8rem; margin-top: 10px; }
+    @media (max-width: 1150px) { .alert-fields { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .alert-fields { grid-template-columns: 1fr 1fr; } .alert-settings { padding: 16px; } }
+    body.locked .data-only, body.locked .logged-only { display: none !important; }
+    body:not(.is-admin) .admin-only { display: none !important; }
+    body:not(.is-admin):not(.is-entry) .writer-only { display: none !important; }
+    body.is-entry .no-entry { display: none !important; }
+    body:not(.is-entry) .entry-only { display: none !important; }
+    .stat { border-left: 5px solid var(--sc, #9bb0a1); background: linear-gradient(135deg, var(--sb, #fff) 0%, #fff 75%); }
+    .stat.c-green { --sc: #1f9d55; --sb: #e3f6ea; }
+    .stat.c-yellow { --sc: #eab308; --sb: #fff6cc; }
+    .stat.c-red { --sc: #e5533d; --sb: #ffe5df; }
+    .stat.c-orange { --sc: #f08a24; --sb: #ffecd6; }
+    .stat.c-gray { --sc: #7b8794; --sb: #eef1f4; }
+    .stat.c-blue { --sc: #7a8594; --sb: #eceff3; }
+    .stat.c-rose { --sc: #c0263d; --sb: #fde4e8; }
+    .stat.c-purple { --sc: #8a5a2b; --sb: #f7ece0; }
+    .stat.c-yellow .stat-value { color: #8a6a00; } .stat.c-red .stat-value { color: #b42318; } .stat.c-orange .stat-value { color: #b45309; } .stat.c-blue .stat-value { color: #1d5fa3; } .stat.c-purple .stat-value { color: #5b34a6; } .stat.c-gray .stat-value { color: #4b5563; }
+    .tint-yellow { border-top: 5px solid #eab308; background: linear-gradient(180deg, #fffbe6 0%, #fff 90px); }
+    .tint-green { border-top: 5px solid #d04a25; background: linear-gradient(180deg, #fdeee4 0%, #fff 90px); }
+    .tint-yellow .card-head h2 { color: #7a5c00; } .tint-green .card-head h2 { color: var(--green-800); }
+    .date-wrap { position: relative; display: block; }
+    .date-wrap input { width: 100%; padding-right: 48px; }
+    .date-wrap input::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; right: 0; top: 0; width: 100%; height: 100%; cursor: pointer; }
+    .date-btn { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; border: 0; border-radius: 9px; background: var(--green-100); color: var(--green-800); display: grid; place-items: center; cursor: pointer; }
+    .date-btn:hover { background: #d6eddc; }
+    .cp-table { width: 100%; min-width: 0 !important; table-layout: fixed; border-collapse: collapse; font-size: .88rem; margin: 8px 0; }
+    .cp-table td, .cp-table th { overflow-wrap: anywhere; }
+    .cp-table th:first-child { width: 34%; }
+    .cp-table th, .cp-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .cp-table th { background: #f7efe0; font-size: .76rem; color: #526157; }
+    .cp-ok { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--green-100); color: var(--green-800); font-weight: 700; font-size: .78rem; }
+    .cp-low { display: inline-block; padding: 1px 8px; border-radius: 999px; background: #ffe5df; color: #b42318; font-weight: 700; font-size: .78rem; }
+    .cp-profile { margin-bottom: 14px; }
+    @media (max-width: 620px) { .cp-table { font-size: .8rem; } .cp-table th, .cp-table td { padding: 6px; } }
+    .quick-fill { margin-top: 12px; border: 1px dashed #9bc7a8; border-radius: 12px; background: #fdf6ea; padding: 10px 14px; }
+    .quick-fill summary { cursor: pointer; font-weight: 700; color: var(--green-800); }
+    .quick-body { margin-top: 10px; display: grid; gap: 10px; }
+    .quick-body textarea { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 10px; font: inherit; resize: vertical; }
+    .quick-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .quick-body .help { margin: 0; color: var(--muted); font-size: .82rem; }
+    .quick-body .help.error { color: var(--red); }
+    .sync-toggle { cursor: pointer; user-select: none; }
+    .sync-head-right { display: inline-flex; align-items: center; gap: 10px; }
+    .sync-chevron { font-size: 1.4rem; line-height: 1; color: var(--green-800); transition: transform .15s; }
+    .sync-toggle[aria-expanded="true"] .sync-chevron { transform: rotate(90deg); }
+    #syncBody { margin-top: 14px; }
+    #syncMessage:empty { display: none; }
+    .modal-center { align-items: center; z-index: 30; }
+    .approve-card { width: min(460px, 100%); text-align: center; }
+    .approve-card h2 { padding-right: 0; }
+    .apv-icon { width: 46px; height: 46px; margin: 0 auto 10px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 900; font-size: 1.5rem; display: grid; place-items: center; }
+    .apv-values { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0 6px; text-align: left; }
+    .apv-values div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: #fffdf8; }
+    .apv-values span { display: block; font-size: .78rem; color: var(--muted); font-weight: 600; }
+    .apv-values strong { font-size: 1.35rem; font-weight: 850; }
+    .apv-values .w strong { color: #8a6a00; } .apv-values .r strong { color: #b42318; } .apv-values .b strong { color: #b45309; } .apv-values .d strong { color: #a61e33; }
+    .apv-values .note { grid-column: 1 / -1; }
+    .apv-values .note strong { font-size: .95rem; font-weight: 600; }
+    .apv-warn { background: #fff6df; border: 1px solid #ecd08a; color: #6b4300; border-radius: 10px; padding: 8px 12px; font-size: .85rem; margin-top: 8px; text-align: left; }
+    .apv-error { background: var(--red-soft); color: var(--red); border-radius: 10px; padding: 8px 12px; font-size: .85rem; margin-top: 8px; text-align: left; }
+    .apv-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+    .apv-actions .button-primary { min-width: 140px; font-size: 1rem; padding: 12px 18px; }
+    .view-tabs { display: flex; gap: 8px; margin: 4px 0 16px; padding: 5px; background: #e8f1ea; border-radius: 14px; width: fit-content; max-width: 100%; }
+    .view-tab { border: 0; background: transparent; color: var(--green-800); font-weight: 750; padding: 10px 18px; border-radius: 10px; font-size: .95rem; }
+    .view-tab.active { background: var(--green-800); color: #fff; box-shadow: 0 5px 12px rgba(181,57,28,.25); }
+    body.locked .view-tabs { display: none !important; }
+    body.view-report .main-view, body.view-report .settings-card, body.view-report .alert-settings { display: none !important; }
+    body.view-report .bottom-layout { grid-template-columns: minmax(0, 1fr); }
+    body:not(.view-report) .report-view { display: none !important; }
+    .report-view { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 18px; }
+    .report-view > * { min-width: 0; }
+    .report-kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 1000px) { .report-kpis { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; padding: 2px 2px 8px; margin: 0 -2px; scrollbar-width: none; } .report-kpis::-webkit-scrollbar { display: none; } .report-kpis .kpi { flex: 0 0 min(215px, 64%); scroll-snap-align: start; } }
+    .kpi { padding: 14px 16px; border-left: 5px solid var(--kc, #9bb0a1); background: linear-gradient(135deg, var(--kb, #fff) 0%, #fff 80%); }
+    .kpi .k-label { font-size: .82rem; font-weight: 700; color: #3d4a41; }
+    .kpi .k-value { font-size: 1.7rem; font-weight: 850; color: var(--kc); letter-spacing: -.02em; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .kpi .k-sub { font-size: .8rem; color: var(--muted); margin-top: 2px; }
+    .kpi .up { color: #1a7f43; font-weight: 750; } .kpi .down { color: #c0392b; font-weight: 750; }
+    .tint-blue { background: linear-gradient(180deg, #f4f5f7 0, #fff 120px); border-top: 4px solid #7a8594; }
+    .care-card .flt-bar { margin-top: 14px; }
+    .flt-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 22px; margin: 4px 0 12px; }
+    .flt-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .flt-cap { font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+    .flt-dates, .flt-cond { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .flt-bar input, .flt-bar select { font: inherit; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; min-width: 0; }
+    .flt-cond input[type=text] { width: 76px; text-align: center; font-weight: 700; }
+    .flt-presets { display: flex; gap: 6px; flex-wrap: wrap; }
+    .flt-presets button { border: 1px solid #c9dcf3; background: #fff; color: #245d9a; border-radius: 99px; padding: 4px 11px; font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; }
+    .flt-presets button.on { background: #7a8594; color: #fff; border-color: #7a8594; }
+    .flt-sum { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 10px; }
+    .flt-sum .chip { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; min-width: 120px; }
+    .flt-sum .chip b { display: block; font-size: 1.25rem; line-height: 1.2; }
+    .flt-sum .chip span { font-size: .78rem; color: var(--muted); }
+    .flt-sum .chip.main { background: #e4f0fd; border-color: #b9d6f5; }
+    .flt-strip { display: flex; flex-wrap: wrap; gap: 3px; margin: 2px 0 4px; }
+    .flt-strip i { width: 13px; height: 13px; border-radius: 3px; background: #e9dfce; display: block; }
+    .flt-strip i.hit { background: #e5533d; }
+    .flt-strip i.hit.ok { background: #1f9d55; }
+    .flt-strip-note { font-size: .78rem; color: var(--muted); margin-bottom: 10px; }
+    .flt-table { max-height: 340px; overflow: auto; }
+    .flt-table thead th { position: sticky; top: 0; background: #f7efe0; }
+    .flt-empty { text-align: center; color: var(--muted); padding: 18px 0 !important; }
+    @media (max-width: 700px) { .flt-bar { grid-template-columns: 1fr; } }
+    .kpi-note { color: var(--muted); font-size: .8rem; margin: -4px 2px 0; }
+    .kpi .k-sub { line-height: 1.45; }
+    @media (max-width: 620px) { .rep-card .card-head { flex-wrap: wrap; gap: 8px; } .range-btns { display: flex; width: 100%; } .range-btns button { flex: 1; padding: 7px 4px; white-space: nowrap; } .report-kpis .kpi { flex-basis: 62%; } .rep-table { font-size: .8rem; } .rep-table th, .rep-table td { padding: 8px 4px !important; white-space: nowrap; } .rep-table th { font-size: .72rem; white-space: normal; line-height: 1.2; } .rep-table .cmp-hide { display: none; } .rep-table { min-width: 0 !important; } .rep-card .table-wrap { overflow-x: auto; } .rep-card:not(#flt) .rep-table th:nth-child(3), .rep-card:not(#flt) .rep-table td:nth-child(3), .rep-card:not(#flt) .rep-table th:nth-child(6), .rep-card:not(#flt) .rep-table td:nth-child(6) { display: none; } }
+    .rep-card { padding: 20px; }
+    .range-btns { display: inline-flex; gap: 4px; background: #eef3ef; padding: 4px; border-radius: 10px; flex-wrap: wrap; }
+    .range-btns button { border: 0; background: transparent; padding: 6px 11px; border-radius: 7px; font-weight: 700; font-size: .82rem; color: var(--green-800); }
+    .range-btns button.on { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+    .rate-wrap { position: relative; height: 320px; margin-top: 6px; touch-action: pan-y; }
+    .week-wrap { position: relative; height: 260px; margin-top: 6px; }
+    .rate-wrap canvas, .week-wrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .rep-legend { margin-top: 10px; flex-wrap: wrap; row-gap: 6px; }
+    .rep-table { min-width: 620px; }
+    .rep-table td.number, .rep-table th.number { text-align: right; }
+    .rep-table .up { color: #1a7f43; font-weight: 750; } .rep-table .down { color: #c0392b; font-weight: 750; }
+    .rep-table tr.cur td { background: #fdf5e8; font-weight: 700; }
+    @media (max-width: 620px) { .rate-wrap { height: 260px; } .rep-card { padding: 14px; } .view-tab { padding: 9px 12px; font-size: .88rem; } .kpi .k-value { font-size: 1.45rem; } }
+    .subs-card { padding: 18px 21px; border-color: #e6c36a; background: #fffaf0; }
+    .sub-item { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 0; border-top: 1px solid #f0e2bd; }
+    .sub-item:first-of-type { border-top: 0; }
+    .sub-text { font-size: .92rem; }
+    .sub-text small { color: var(--muted); display: block; }
+    .badge-wait { display: inline-block; padding: 2px 8px; border-radius: 999px; background: #fff0c9; color: #8a4b00; font-size: .78rem; font-weight: 700; }
+    .badge-ok { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--green-100); color: var(--green-800); font-size: .78rem; font-weight: 700; }
+    .entry-list-card { padding: 21px; }
+    .entry-list-card .table-wrap { margin-top: 12px; }
+    body:not(.is-admin) .bottom-layout { grid-template-columns: minmax(0, 1fr); }
+    .role-pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; background: var(--green-100); color: var(--green-800); }
+    .role-pill.viewer { background: #fff6df; color: #8a4b00; }
+    .sync-card { padding: 21px; }
+    .sync-fields { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; }
+    .sync-card .check { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+    .sync-card .check input { display: inline-block; width: auto; margin: 0; }
+    .sync-card .help { color: var(--muted); font-size: .82rem; margin-top: 10px; }
+    .sync-card .help.error { color: var(--red); }
+    #syncStatus.ok { color: var(--green-800); font-weight: 650; }
+    #syncStatus.error { color: var(--red); font-weight: 650; }
+    @media (max-width: 950px) {
+      .stat-grid { grid-template-columns: repeat(3, 1fr); }
+      .entry-layout, .bottom-layout { grid-template-columns: 1fr; }
+      .settings-card { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; align-items: end; }
+      .settings-card h2, .settings-card p { grid-column: 1 / -1; }
+      .settings-card label { margin-top: 12px; }
+      .settings-card .button { margin-top: 0; }
+      .settings-card .help { grid-column: 1 / -1; }
+    }
+    @media (max-width: 620px) {
+      .sync-fields { grid-template-columns: 1fr; }
+      .sync-card { padding: 16px; border-radius: 15px; }
+      .app { width: min(100% - 22px, 1180px); padding-top: 20px; }
+      .topbar { gap: 12px; margin-bottom: 18px; }
+      .brand { gap: 10px; }
+      .brand-mark { width: 42px; height: 42px; border-radius: 13px; }
+      .storage-note { display: none; }
+      .form-card, .settings-card, .chart-card, .today-card, .history-card { padding: 16px; border-radius: 15px; }
+      .fields { grid-template-columns: 1fr 1fr; }
+      .fields label:first-child { grid-column: 1 / -1; }
+      .stat-grid { grid-template-columns: 1fr 1fr; gap: 9px; }
+      .stat { min-height: 100px; padding: 14px; }
+      .settings-card { display: block; }
+      .settings-card .button { margin-top: 12px; }
+      .chart-wrap { height: 270px; }
+      .form-actions { align-items: stretch; }
+      .form-actions .button-primary { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7.4 8.1C4.8 8.8 3.5 11.2 4.2 14c.8 3.1 3.6 5.4 7.1 5.4 3.9 0 7-2.8 7-6.2 0-3.6-3-6.5-6.8-6.5-1.8 0-3.2.6-4.1 1.4Z"/><path d="M10.2 6.8C9.3 5.6 9.8 4 11.1 3.4c.7 1.1 1.1 2.3.5 3.4"/><path d="M14.5 6.9c.3-1.2 1.2-2.1 2.5-2.3.3 1.2-.2 2.4-1.2 3.1"/><path d="M18.1 11.3h2.1l-1.2 1.1 1.2 1.1h-2.1"/><circle cx="14.5" cy="11.7" r=".45" fill="currentColor" stroke="none"/></svg>
+        </div>
+        <div>
+          <h1>Quản lý trại gà</h1>
+          <p class="subtitle">Nhập số liệu hằng ngày, theo dõi đàn và sản lượng trứng.</p>
+        </div>
+      </div>
+      <div class="storage-note" id="storageNote">Chưa đăng nhập</div>
+    </header>
+
+    <nav class="view-tabs data-only no-entry" id="viewTabs" aria-label="Chuyển mục">
+      <button type="button" class="view-tab active" data-view="main" aria-pressed="true">Nhập liệu &amp; tổng quan</button>
+      <button type="button" class="view-tab" data-view="report" aria-pressed="false">Báo cáo tỷ lệ đẻ</button>
+    </nav>
+
+    <section class="report-view data-only no-entry" id="reportView" aria-label="Báo cáo tỷ lệ đẻ">
+      <div class="report-kpis" id="reportKpis"></div>
+      <p class="kpi-note" id="kpiNote" hidden></p>
+      <article class="card rep-card tint-green">
+        <div class="card-head"><h2>Tỷ lệ đẻ theo ngày</h2>
+          <div class="range-btns" id="rateRange" role="group" aria-label="Khoảng thời gian">
+            <button type="button" data-range="14">14 ngày</button><button type="button" data-range="30" class="on">30 ngày</button><button type="button" data-range="60">60 ngày</button><button type="button" data-range="0">Tất cả</button>
+          </div>
+        </div>
+        <div class="rate-wrap"><canvas id="rateChart" aria-label="Biểu đồ tỷ lệ đẻ theo ngày" role="img"></canvas></div>
+        <div class="legend rep-legend" id="rateLegend"></div>
+      </article>
+      <article class="card rep-card tint-yellow">
+        <div class="card-head"><h2>Tỷ lệ đẻ trung bình theo tuần tuổi</h2><span id="weekNote"></span></div>
+        <div class="week-wrap"><canvas id="weekChart" aria-label="Biểu đồ tỷ lệ đẻ trung bình theo tuần tuổi" role="img"></canvas></div>
+        <div class="legend rep-legend"><span class="legend-item"><i class="legend-dot" style="background:#1f9d55"></i>Từ 95% trở lên (đạt chuẩn CP-T1)</span><span class="legend-item"><i class="legend-dot" style="background:#f0a30a"></i><span id="wkLegMid">Từ 90% đến dưới 95%</span></span><span class="legend-item"><i class="legend-dot" style="background:#e5533d"></i><span id="wkLegLow">Dưới 90% (thấp hơn ngưỡng tối thiểu)</span></span></div>
+      </article>
+      <article class="card rep-card">
+        <div class="card-head"><h2>Thống kê theo tuần tuổi</h2><span>Toàn bộ quá trình, mới nhất ở trên</span></div>
+        <div class="table-wrap"><table class="rep-table"><thead><tr><th>Tuần tuổi</th><th>Giai đoạn</th><th class="number">Số ngày</th><th class="number">TB tỷ lệ đẻ</th><th class="number">So tuần trước</th><th class="number">Tổng trứng</th><th class="number">Gà chết</th></tr></thead><tbody id="weekTable"></tbody></table></div>
+      </article>
+      <section class="card care-card" id="flt" aria-label="Lọc ngày theo tỷ lệ đẻ">
+        <button type="button" class="care-toggle" id="fltToggle" aria-expanded="false" aria-controls="fltBodyWrap">
+          <span class="care-heading">Lọc ngày theo tỷ lệ đẻ</span><span class="care-age" id="fltSub">Bấm để mở</span><span class="care-chevron" aria-hidden="true">›</span>
+        </button>
+        <div id="fltBodyWrap" hidden>
+        <div class="flt-bar">
+          <div class="flt-group"><span class="flt-cap">Khoảng thời gian</span>
+            <div class="range-btns" id="fltRange" role="group" aria-label="Khoảng thời gian lọc"><button type="button" data-r="7">7 ngày</button><button type="button" data-r="30" class="on">30 ngày</button><button type="button" data-r="0">Tất cả</button><button type="button" data-r="c">Chọn ngày</button></div>
+            <div class="flt-dates" id="fltDates" hidden><input type="date" id="fltFrom" aria-label="Từ ngày"><span>→</span><input type="date" id="fltTo" aria-label="Đến ngày"></div>
+          </div>
+          <div class="flt-group"><span class="flt-cap">Điều kiện tỷ lệ đẻ</span>
+            <div class="flt-cond">
+              <select id="fltOp" aria-label="Điều kiện"><option value="lt">Nhỏ hơn (&lt;)</option><option value="gt">Lớn hơn (&gt;)</option><option value="bt">Trong khoảng</option></select>
+              <input type="text" inputmode="decimal" id="fltA" value="90" aria-label="Giá trị">
+              <span id="fltAnd" hidden>đến</span><input type="text" inputmode="decimal" id="fltB" value="95" aria-label="Giá trị đến" hidden>
+              <b>%</b>
+            </div>
+            <div class="flt-presets" id="fltPresets"><button type="button" data-p="lt90">&lt; 90%</button><button type="button" data-p="lt87">&lt; 87%</button><button type="button" data-p="gt95">&gt; 95%</button><button type="button" data-p="bt9095">90–95%</button></div>
+          </div>
+        </div>
+        <div class="flt-sum" id="fltSum"></div>
+        <div class="table-wrap flt-table"><table class="rep-table"><thead><tr><th>Ngày</th><th>Tuần tuổi</th><th class="number">Tỷ lệ đẻ</th><th class="number">Tổng trứng</th><th class="number">Gà chết</th></tr></thead><tbody id="fltBody"></tbody></table></div>
+        </div>
+      </section>
+    <section class="card care-card" aria-label="Lịch chăm sóc theo tuần tuổi">
+      <button type="button" class="care-toggle" id="careToggle" aria-expanded="false" aria-controls="careBody">
+        <span class="care-heading">Lịch chăm sóc theo tuần tuổi</span>
+        <span class="care-age" id="careAge"></span>
+        <span class="care-chevron" aria-hidden="true">›</span>
+      </button>
+      <div id="careBody" hidden></div>
+    </section>
+    </section>
+
+    <section class="main-view entry-layout data-only writer-only" aria-label="Nhập số liệu">
+      <form class="card form-card" id="entryForm">
+        <button type="button" class="care-toggle" id="formToggle" aria-expanded="false" aria-controls="formBody"><h2 class="section-title care-heading" id="formTitle" style="margin:0">Nhập số liệu trong ngày</h2><span class="care-age" id="formHint">Bấm để mở</span><span class="care-chevron" aria-hidden="true">›</span></button>
+        <div id="formBody" hidden>
+        <p class="section-description" id="formDesc">Mỗi ngày có một bản ghi. Lưu lại ngày đã có dữ liệu sẽ cập nhật bản ghi đó.</p>
+        <details class="quick-fill" id="quickFill">
+          <summary>Điền nhanh từ ảnh chụp hoặc tin nhắn</summary>
+          <div class="quick-body">
+            <p class="help">Chọn ảnh chụp tin nhắn số liệu (Zalo...) hoặc dán nội dung tin nhắn. App đọc ngày, trứng trắng, trứng đỏ, trứng vỡ, gà chết và điền vào form bên dưới. Hãy kiểm tra lại rồi bấm Lưu số liệu.</p>
+            <div class="quick-actions">
+              <input type="file" id="shotFile" accept="image/*" hidden>
+              <button type="button" class="button button-secondary" id="shotBtn">Chọn ảnh chụp màn hình</button>
+            </div>
+            <textarea id="shotText" rows="5" placeholder="Hoặc dán tin nhắn vào đây, ví dụ:&#10;Ngày 27/10 tổng số lượng:&#10;- 36000 quả trắng&#10;- 410 quả đỏ&#10;- 90 quả trứng nhỏ xấu, vỡ&#10;- gà chết: 4 con"></textarea>
+            <div class="quick-actions"><button type="button" class="button button-secondary" id="shotFill">Điền vào form</button></div>
+            <p class="help" id="shotStatus" aria-live="polite"></p>
+          </div>
+        </details>
+        <div class="fields">
+          <label>Ngày
+            <span class="date-wrap">
+              <input id="entryDate" type="date" required>
+              <button type="button" class="date-btn" id="dateBtn" aria-label="Chọn ngày từ lịch" title="Chọn ngày từ lịch">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16.5" rx="3"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="12" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg>
+              </button>
+            </span>
+          </label>
+          <label>Trứng trắng
+            <input id="whiteEggs" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+          </label>
+          <label>Trứng đỏ
+            <input id="redEggs" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+          </label>
+          <label>Trứng vỡ
+            <input id="brokenEggs" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+          </label>
+          <label>Gà chết
+            <input id="deaths" type="number" min="0" step="1" inputmode="numeric" placeholder="0">
+          </label>
+        </div>
+        <label class="note-field">Ghi chú <span style="font-weight:400;color:#647268">(không bắt buộc)</span>
+          <textarea id="notes" maxlength="240" placeholder="Ví dụ: kiểm tra chuồng, thay cám..."></textarea>
+        </label>
+        <p class="lock-notice" id="lockNotice" hidden></p>
+        <div class="form-actions">
+          <button type="submit" class="button button-primary" id="saveButton">Lưu số liệu</button>
+          <button type="button" class="button button-secondary" id="clearButton">Nhập mới</button>
+          <span class="edit-notice" id="editNotice">Đang chỉnh sửa bản ghi</span>
+        </div>
+        </div>
+      </form>
+
+    </section>
+
+
+    <section class="card entry-list-card entry-only data-only" aria-label="Số liệu bạn đã nhập">
+      <h2 class="section-title">Số liệu bạn đã nhập</h2>
+      <p class="section-description" id="entryListDesc">7 ngày gần đây</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Ngày</th><th class="number">Trứng trắng</th><th class="number">Trứng đỏ</th><th class="number">Trứng vỡ</th><th class="number">Gà chết</th><th>Ghi chú</th><th>Trạng thái</th><th></th></tr></thead>
+        <tbody id="entryBody"></tbody>
+      </table></div>
+    </section>
+
+    <section class="main-view card subs-card admin-only data-only no-entry" id="subsCard" aria-label="Số liệu chờ duyệt" hidden>
+      <h2 class="section-title">Số liệu chờ duyệt</h2>
+      <p class="section-description">Số liệu do tài khoản nhập liệu gửi. Chỉ khi bạn bấm Duyệt thì mới được ghi vào sổ (Google Sheet).</p>
+      <div id="subsList"></div>
+    </section>
+
+    <section class="main-view alert-zone data-only no-entry" id="alertZone" aria-label="Cảnh báo" aria-live="polite"></section>
+
+    <section class="main-view dashboard-grid data-only no-entry" aria-label="Biểu đồ và số liệu gần nhất">
+      <article class="card chart-card tint-yellow">
+        <div class="card-head"><h2>Sản lượng 7 ngày gần nhất</h2><span id="chartRange">Chưa có dữ liệu</span></div>
+        <div class="chart-wrap"><canvas id="productionChart" aria-label="Biểu đồ sản lượng trứng bảy ngày gần nhất" role="img"></canvas></div>
+        <div class="legend"><span class="legend-item"><i class="legend-dot white-dot"></i>Trứng trắng</span><span class="legend-item"><i class="legend-dot red-dot"></i>Trứng đỏ</span><span class="legend-item"><i class="legend-dot" style="background:#1f9d55"></i>Tỷ lệ đẻ</span></div>
+      </article>
+      <article class="card today-card tint-green">
+        <div class="card-head"><h2 id="latestTitle">Số liệu mới nhất</h2><span id="latestDate"></span></div>
+        <div id="latestSummary"></div>
+      </article>
+    </section>
+
+    <section class="main-view stat-grid data-only no-entry" aria-label="Tổng quan">
+      <article class="card stat c-green"><div class="stat-label">Gà còn lại</div><div class="stat-value green-value" id="remainingFlock">0</div><div class="stat-detail" id="remainingDetail">Chưa có số gà đầu kỳ</div></article>
+      <article class="card stat c-yellow"><div class="stat-label">Trứng trắng</div><div class="stat-value" id="totalWhite">0</div><div class="stat-detail">Tổng đã ghi nhận</div></article>
+      <article class="card stat c-red"><div class="stat-label">Trứng đỏ</div><div class="stat-value" id="totalRed">0</div><div class="stat-detail">Tính riêng, không nằm trong tổng</div></article>
+      <article class="card stat c-orange"><div class="stat-label">Trứng vỡ</div><div class="stat-value" id="totalBroken">0</div><div class="stat-detail">Tổng đã ghi nhận</div></article>
+      <article class="card stat c-gray"><div class="stat-label">Trứng huỷ</div><div class="stat-value" id="totalHuy">0</div><div class="stat-detail">Tổng đã ghi nhận</div></article>
+      <article class="card stat c-blue"><div class="stat-label">Tổng số trứng</div><div class="stat-value" id="totalEggs">0</div><div class="stat-detail">Trứng trắng + trứng vỡ</div></article>
+      <article class="card stat c-rose"><div class="stat-label">Gà chết</div><div class="stat-value red-value" id="totalDeaths">0</div><div class="stat-detail">Tổng đã ghi nhận</div></article>
+      <article class="card stat c-purple"><div class="stat-label">Tuần tuổi</div><div class="stat-value" id="ageWeeks">0</div><div class="stat-detail" id="ageDetail">Chưa có dữ liệu</div></article>
+    </section>
+
+    <section class="main-view card history-card data-only no-entry" aria-label="Lịch sử nhập liệu">
+      <div class="history-toolbar">
+        <div><h2 class="section-title">Lịch sử nhập liệu</h2><p class="section-description" id="recordCount">Chưa có bản ghi</p></div>
+        <div class="toolbar-actions">
+          <button type="button" class="button button-secondary" id="exportCsvButton">Xuất CSV</button>
+          <button type="button" class="button button-secondary" id="backupButton">Sao lưu</button>
+          <button type="button" class="button button-secondary admin-only" id="importButton">Nhập bản sao</button>
+          <input class="hidden-input" id="importFile" type="file" accept="application/json,.json">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Ngày</th><th>Tuần tuổi</th><th class="number">Trứng trắng</th><th class="number">Trứng đỏ</th><th class="number">Trứng vỡ</th><th class="number">Trứng huỷ</th><th class="number">Gà chết</th><th class="number">Gà còn lại</th><th class="number">Tỷ lệ đẻ</th><th>Ghi chú</th><th class="admin-only">Thao tác</th></tr></thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="pager"></div>
+    </section>
+
+    <section class="bottom-layout" aria-label="Cài đặt">
+      <aside class="card settings-card admin-only data-only" aria-label="Cài đặt đàn gà">
+        <div>
+          <h2>Cài đặt đàn gà</h2>
+          <p>Nhập số gà đầu kỳ để tính số gà còn lại và tỷ lệ đẻ.</p>
+        </div>
+        <label>Số gà đầu kỳ
+          <input id="initialFlock" type="number" min="0" step="1" inputmode="numeric" placeholder="Ví dụ: 38.950">
+        </label>
+        <button type="button" class="button button-secondary" id="saveFlockButton">Lưu số lượng đàn</button>
+        <p class="help">Bạn có thể thay đổi số này khi bắt đầu lứa gà mới. Các chỉ số sẽ được tính lại tự động.</p>
+      </aside>
+      <aside class="card alert-settings admin-only data-only" aria-label="Ngưỡng cảnh báo">
+        <h2 class="section-title">Ngưỡng cảnh báo</h2>
+        <p class="section-description">App tự cảnh báo khi số liệu mới nhất vượt các ngưỡng này. Ngưỡng lưu chung cho mọi người dùng.</p>
+        <div class="alert-fields">
+          <label>Chết trong ngày (% đàn)
+            <input id="alertDeathDay" type="number" min="0" step="0.01" inputmode="decimal">
+          </label>
+          <label>Chết 7 ngày (% đàn)
+            <input id="alertDeath7" type="number" min="0" step="0.01" inputmode="decimal">
+          </label>
+          <label>Tỷ lệ đẻ tối thiểu (%)
+            <input id="alertRateMin" type="number" min="0" max="100" step="0.1" inputmode="decimal">
+          </label>
+          <label>Tỷ lệ đẻ tụt (%)
+            <input id="alertRateDrop" type="number" min="0" step="0.1" inputmode="decimal">
+          </label>
+        </div>
+        <div class="form-actions"><button type="button" class="button button-secondary" id="saveAlertsButton">Lưu ngưỡng cảnh báo</button><button type="button" class="button button-plain" id="resetAlertsButton">Về mặc định</button></div>
+        <p class="help">Tỷ lệ đẻ tụt: so với trung bình 7 ngày trước (so sánh tuần với tuần dùng một nửa mức này). Cảnh báo tỷ lệ đẻ tối thiểu chỉ bật sau khi đàn đã từng đạt mức đó.</p>
+      </aside>
+      <section class="card sync-card" aria-label="Đăng nhập">
+      <div class="card-head sync-toggle" id="syncToggle" role="button" tabindex="0" aria-expanded="false" aria-controls="syncBody"><h2>Đăng nhập</h2><span class="sync-head-right"><span id="syncStatus">Chưa đăng nhập</span><span class="sync-chevron" aria-hidden="true">›</span></span></div>
+      <div id="syncBody" hidden>
+      <div class="sync-fields">
+        <label>Địa chỉ Web App (Apps Script)
+          <input id="syncUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+        </label>
+        <label>Mã đăng nhập
+          <input id="syncToken" type="password" autocomplete="off" placeholder="Mã do quản trị viên cấp">
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="button button-primary" id="syncSaveButton">Đăng nhập</button>
+        <button type="button" class="button button-secondary logged-only" id="syncRefreshButton">Làm mới ngay</button>
+        <button type="button" class="button button-secondary admin-only" id="syncAllButton">Gửi toàn bộ dữ liệu</button>
+        <button type="button" class="button button-plain logged-only" id="logoutButton">Đăng xuất</button>
+      </div>
+      <p class="help" id="syncMessage"></p>
+      </div>
+    </section>
+    </section>
+
+    <div class="modal modal-center" id="approveModal" hidden>
+      <div class="modal-card approve-card" role="alertdialog" aria-modal="true" aria-labelledby="apvTitle">
+        <div class="apv-icon" aria-hidden="true">!</div>
+        <h2 id="apvTitle">Có số liệu mới chờ duyệt</h2>
+        <p class="modal-sub" id="apvMeta"></p>
+        <div class="apv-values" id="apvValues"></div>
+        <p class="apv-warn" id="apvWarn" hidden></p>
+        <p class="apv-error" id="apvError" hidden></p>
+        <div class="apv-actions">
+          <button type="button" class="button button-primary" id="apvOk">OK, duyệt</button>
+          <button type="button" class="button button-danger" id="apvNo">Từ chối</button>
+          <button type="button" class="button button-plain" id="apvLater">Để sau</button>
+        </div>
+        <p class="modal-sub" id="apvMore"></p>
+      </div>
+    </div>
+
+    <div class="modal" id="dayModal" hidden>
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="dayTitle">
+        <button type="button" class="modal-close" id="dayClose" aria-label="Đóng">×</button>
+        <div id="dayBody"></div>
+      </div>
+    </div>
+
+    <p class="footer">Mẹo: bấm vào một dòng trong lịch sử để xem chi tiết và cảnh báo của ngày đó.</p>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg><span id="toastText"></span></div>
+
+  <script>
+    (() => {
+      'use strict';
+      const STORAGE_KEY = 'quan-ly-trai-ga-v3';
+      const OLD_STORAGE_KEYS = ['quan-ly-trai-ga-v1', 'quan-ly-trai-ga-sync-v1'];
+      const DATA_VERSION = 3;
+      const DEFAULT_SYNC_URL = '';   // Google Apps Script tự điền địa chỉ này khi phát app cho cả nhóm
+      const numberFormat = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
+      const dateFormat = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' });
+      const shortDateFormat = new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+      const DEFAULT_ALERTS = { deathDay: 0.05, death7: 0.15, rateMin: 90, rateDrop: 3 };
+      let state = { version: DATA_VERSION, initialFlock: 0, records: [], alerts: { ...DEFAULT_ALERTS } };
+      let lastAlertSignature = null;
+      let editingDate = null;
+      const PAGE_SIZE = 10;
+      let historyPage = 1;
+      let toastTimer = null;
+
+      const els = {
+        form: document.querySelector('#entryForm'), date: document.querySelector('#entryDate'), white: document.querySelector('#whiteEggs'), red: document.querySelector('#redEggs'), broken: document.querySelector('#brokenEggs'), deaths: document.querySelector('#deaths'), notes: document.querySelector('#notes'),
+        clear: document.querySelector('#clearButton'), save: document.querySelector('#saveButton'), editNotice: document.querySelector('#editNotice'), initialFlock: document.querySelector('#initialFlock'), saveFlock: document.querySelector('#saveFlockButton'),
+        remainingFlock: document.querySelector('#remainingFlock'), remainingDetail: document.querySelector('#remainingDetail'), totalWhite: document.querySelector('#totalWhite'), totalRed: document.querySelector('#totalRed'), totalBroken: document.querySelector('#totalBroken'), totalHuy: document.querySelector('#totalHuy'), totalEggs: document.querySelector('#totalEggs'), totalDeaths: document.querySelector('#totalDeaths'),
+        alertZone: document.querySelector('#alertZone'), ageWeeks: document.querySelector('#ageWeeks'), ageDetail: document.querySelector('#ageDetail'), careAge: document.querySelector('#careAge'), careBody: document.querySelector('#careBody'), careToggle: document.querySelector('#careToggle'), dayModal: document.querySelector('#dayModal'), dayBody: document.querySelector('#dayBody'), dayClose: document.querySelector('#dayClose'), alertDeathDay: document.querySelector('#alertDeathDay'), alertDeath7: document.querySelector('#alertDeath7'), alertRateMin: document.querySelector('#alertRateMin'), alertRateDrop: document.querySelector('#alertRateDrop'), saveAlerts: document.querySelector('#saveAlertsButton'), resetAlerts: document.querySelector('#resetAlertsButton'),
+        chart: document.querySelector('#productionChart'), chartRange: document.querySelector('#chartRange'), latestTitle: document.querySelector('#latestTitle'), latestDate: document.querySelector('#latestDate'), latestSummary: document.querySelector('#latestSummary'), history: document.querySelector('#historyBody'), pager: document.querySelector('#pager'), recordCount: document.querySelector('#recordCount'),
+        storageNote: document.querySelector('#storageNote'), reportKpis: document.querySelector('#reportKpis'), kpiNote: document.querySelector('#kpiNote'), rateChart: document.querySelector('#rateChart'), weekChart: document.querySelector('#weekChart'), rateLegend: document.querySelector('#rateLegend'), weekNote: document.querySelector('#weekNote'), weekTable: document.querySelector('#weekTable'), apvModal: document.querySelector('#approveModal'), apvMeta: document.querySelector('#apvMeta'), apvValues: document.querySelector('#apvValues'), apvWarn: document.querySelector('#apvWarn'), apvError: document.querySelector('#apvError'), apvOk: document.querySelector('#apvOk'), apvNo: document.querySelector('#apvNo'), apvLater: document.querySelector('#apvLater'), apvMore: document.querySelector('#apvMore'), shotFile: document.querySelector('#shotFile'), shotBtn: document.querySelector('#shotBtn'), shotText: document.querySelector('#shotText'), shotFill: document.querySelector('#shotFill'), shotStatus: document.querySelector('#shotStatus'), formTitle: document.querySelector('#formTitle'), formDesc: document.querySelector('#formDesc'), entryBody: document.querySelector('#entryBody'), subsCard: document.querySelector('#subsCard'), subsList: document.querySelector('#subsList'), entryListDesc: document.querySelector('#entryListDesc'), exportCsv: document.querySelector('#exportCsvButton'), backup: document.querySelector('#backupButton'), importBtn: document.querySelector('#importButton'), importFile: document.querySelector('#importFile'), toast: document.querySelector('#toast'), toastText: document.querySelector('#toastText')
+      };
+
+      function todayIso() {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+      }
+      function parseDate(date) { return new Date(`${date}T12:00:00+07:00`); }
+      function formatDate(date) { return dateFormat.format(parseDate(date)); }
+      function shortDate(date) { return shortDateFormat.format(parseDate(date)); }
+      function safeNumber(value) { const parsed = Number(value); return Number.isFinite(parsed) && parsed >= 0 ? Math.floor(parsed) : 0; }
+      function escapeHtml(value) { return String(value || '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]); }
+      function total(records, field) { return records.reduce((sum, row) => sum + safeNumber(row[field]), 0); }
+      function sortedRecords() { return [...state.records].sort((a, b) => a.date.localeCompare(b.date)); }
+      function computedRecords() {
+        let remaining = safeNumber(state.initialFlock);
+        return sortedRecords().map(row => {
+          const beginning = remaining;
+          const deaths = Math.min(safeNumber(row.deaths), beginning);
+          remaining = Math.max(0, beginning - deaths);
+          // Theo Excel: tổng trứng = trứng trắng + trứng vỡ; tỷ lệ đẻ = (trắng + vỡ + huỷ) / gà còn lại
+          const eggs = safeNumber(row.whiteEggs) + safeNumber(row.brokenEggs);
+          const layingEggs = eggs + safeNumber(row.huyEggs);
+          return { ...row, ageDays: ageDaysOf(row.date), deaths, beginning, remaining, eggs, layingEggs, rate: remaining > 0 ? layingEggs / remaining * 100 : null };
+        });
+      }
+      function flockBeforeDate(date, ignoredDate) {
+        let remaining = safeNumber(state.initialFlock);
+        sortedRecords().filter(row => row.date !== ignoredDate && row.date < date).forEach(row => {
+          remaining = Math.max(0, remaining - Math.min(safeNumber(row.deaths), remaining));
+        });
+        return remaining;
+      }
+      function saveState() { state.version = DATA_VERSION; try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { /* trình duyệt chặn lưu trữ: vẫn chạy bình thường */ } }
+      function loadState() {
+        // Xóa dữ liệu và mã cũ của các bản trước (không còn dùng)
+        try { OLD_STORAGE_KEYS.forEach(key => localStorage.removeItem(key)); } catch (_) { /* bỏ qua */ }
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (saved && Array.isArray(saved.records)) {
+            state = { version: DATA_VERSION, initialFlock: safeNumber(saved.initialFlock), records: saved.records.filter(validRecord).map(normalizeRecord), alerts: normalizeAlerts(saved.alerts) };
+          }
+        } catch (_) { /* bắt đầu trống, số liệu lấy từ Google Sheet */ }
+      }
+      function normalizeAlerts(value) {
+        const source = value && typeof value === 'object' ? value : {};
+        const pick = (key, min, max) => { const n = Number(source[key]); return Number.isFinite(n) && n >= min && n <= max ? n : DEFAULT_ALERTS[key]; };
+        return { deathDay: pick('deathDay', 0, 100), death7: pick('death7', 0, 100), rateMin: pick('rateMin', 0, 100), rateDrop: pick('rateDrop', 0, 100) };
+      }
+      function computeAlerts(rows, cfg) {
+        const items = [];
+        if (!rows.length) return { date: null, items };
+        const last = rows[rows.length - 1];
+        const pct = value => `${value.toFixed(2).replace('.', ',')}%`;
+        const level = (value, limit) => value >= limit * 2 ? 'danger' : 'warn';
+        // 1) Gà chết trong ngày (% so với đàn đầu ngày)
+        const dayPct = last.beginning > 0 ? last.deaths / last.beginning * 100 : 0;
+        if (last.deaths > 0 && dayPct >= cfg.deathDay) items.push({ key: 'death-day', level: level(dayPct, cfg.deathDay), title: 'Gà chết trong ngày cao', text: `${last.deaths} con, bằng ${pct(dayPct)} đàn (ngưỡng ${pct(cfg.deathDay)}).` });
+        // 2) Gà chết cộng dồn 7 ngày gần nhất
+        const week = rows.slice(-7);
+        if (week.length >= 3) {
+          const sum = week.reduce((total, row) => total + row.deaths, 0);
+          const weekPct = week[0].beginning > 0 ? sum / week[0].beginning * 100 : 0;
+          if (sum > 0 && weekPct >= cfg.death7) items.push({ key: 'death-week', level: level(weekPct, cfg.death7), title: 'Gà chết trong kỳ 7 ngày cao', text: `${sum} con trong ${week.length} ngày gần nhất, bằng ${pct(weekPct)} đàn (ngưỡng ${pct(cfg.death7)}).` });
+        }
+        // 3) Tỷ lệ đẻ: thấp hơn mức tối thiểu (chỉ khi đàn đã từng đạt mức này, để không báo trong giai đoạn mới lên đẻ)
+        const rated = rows.filter(row => row.rate !== null);
+        const peaked = rated.some(row => row.rate >= cfg.rateMin);
+        if (last.rate !== null) {
+          if (peaked && last.rate < cfg.rateMin) items.push({ key: 'rate-min', level: last.rate < cfg.rateMin - 3 ? 'danger' : 'warn', title: 'Tỷ lệ đẻ dưới mức tối thiểu', text: `Tỷ lệ đẻ ${pct(last.rate)}, thấp hơn mức tối thiểu ${pct(cfg.rateMin)}.` });
+          // 4) Tụt so với trung bình 7 ngày trước đó
+          const previous = rows.slice(-8, -1).filter(row => row.rate !== null);
+          if (previous.length >= 3) {
+            const average = previous.reduce((total, row) => total + row.rate, 0) / previous.length;
+            const drop = average - last.rate;
+            if (drop >= cfg.rateDrop) items.push({ key: 'rate-drop', level: level(drop, cfg.rateDrop), title: 'Tỷ lệ đẻ tụt so với kỳ trước', text: `Hôm nay ${pct(last.rate)}, thấp hơn trung bình ${previous.length} ngày trước (${pct(average)}) là ${drop.toFixed(1).replace('.', ',')}% (ngưỡng ${cfg.rateDrop.toFixed(1).replace('.', ',')}%).` });
+          }
+        }
+        // 5) Trung bình 7 ngày gần nhất thấp hơn 7 ngày liền trước
+        const recent = rated.slice(-7), before = rated.slice(-14, -7);
+        if (recent.length === 7 && before.length === 7) {
+          const avg = list => list.reduce((total, row) => total + row.rate, 0) / list.length;
+          const drop = avg(before) - avg(recent);
+          if (drop >= cfg.rateDrop / 2) items.push({ key: 'rate-week', level: level(drop, cfg.rateDrop / 2), title: 'Tỷ lệ đẻ cả tuần đang giảm', text: `Trung bình 7 ngày gần nhất ${pct(avg(recent))}, giảm ${drop.toFixed(1).replace('.', ',')}% so với 7 ngày trước đó (${pct(avg(before))}).` });
+        }
+        return { date: last.date, items };
+      }
+      // ---- Tuần tuổi: tính từ mốc trong file Excel (05/06/2026 = 112 ngày tuổi = 16 tuần)
+      const AGE_REF = { date: '2026-06-05', days: 112 };
+      function ageDaysOf(date) { return AGE_REF.days + Math.round((parseDate(date) - parseDate(AGE_REF.date)) / 86400000); }
+      function ageText(days) { const weeks = Math.floor(days / 7), rest = days % 7; return rest ? `${weeks} tuần ${rest} ngày` : `${weeks} tuần`; }
+
+      // ---- Lịch chăm sóc tham khảo theo tuần tuổi (tổng hợp từ tài liệu chuyên môn, có nguồn)
+      const CARE_SOURCES = {
+        merck: { name: 'Merck Veterinary Manual — Vaccination Program for Commercial Layers', url: 'https://www.merckvetmanual.com/multimedia/table/vaccination-program-for-commercial-layers' },
+        hyline: { name: 'Hy-Line — Vaccination technical update', url: 'https://www.hyline.com/Upload/Resources/TU%20VACC%20ENG.pdf' },
+        greenfeed: { name: 'Greenfeed Việt Nam — Lịch tiêm phòng vaccine cho gà', url: 'https://www.greenfeed.com.vn/thuc-an-chan-nuoi-gia-suc-gia-cam/en/lich-tiem-phong-vaccine-cho-ga-chi-tiet-bi-quyet-giup-dan-ga-khoe-manh-nang-suat-cao/' },
+        lohmann: { name: 'Lohmann Breeders — LB Classic nutrient levels', url: 'https://lohmann-breeders.com/files/downloads/MG/e-Guides/Cage/English/LB_eMG_Cage_EN_NutrientLevels_LB-Classic_p25.pdf' },
+        ew: { name: 'EW Nutrition — Layer nutrition & eggshell quality', url: 'https://ew-nutrition.com/en-uk/layer-nutrition-eggshell-quality/?print=pdf' },
+        cpt1: { name: 'Tạp chí Chăn nuôi Việt Nam — CP-T1: giống gà đẻ trứng trắng hồng', url: 'https://nguoichannuoi.vn/cp-t1-giong-ga-de-trung-trang-hong-nang-suat-vuot-troi-va-ben-bi/' },
+        cpt1b: { name: 'Tongwei Việt Nam — Giống gà đẻ trứng CP', url: 'https://tongweivietnam.com/cac-giong-ga-de-trung/' },
+        worms: { name: 'PoultryMed — Kiểm soát giun đũa (Ascaridia galli) ở gà đẻ, theo Vet Rec Open 2022', url: 'https://www.poultrymed.com/news_36746' }
+      };
+      const CARE_LABELS = { vaccine: 'Vắc-xin', calcium: 'Canxi', feed: 'Thức ăn', health: 'Sức khỏe' };
+      // from/to: tuần tuổi (gồm cả hai đầu). periodic: nhắc định kỳ trong cả khoảng.
+      const CARE_ITEMS = [
+        { id: 'nd-ib-16', type: 'vaccine', from: 16, to: 18, title: 'ND + IB sống trước khi vào đẻ', text: 'Chương trình mẫu của Merck có liều Newcastle/Viêm phế quản (ND/IB) sống ở 16–18 tuần, qua nước uống hoặc phun. Đây là mốc trước/đầu giai đoạn đẻ, dùng để đối chiếu với lịch sử tiêm của đàn.', src: ['merck'] },
+        { id: 'prelay', type: 'calcium', from: 15, to: 18, title: 'Thức ăn tiền đẻ (pre-lay)', text: 'Canxi khoảng 2,5% (50% đá vôi hạt thô), dùng 10–14 ngày trước khi đẻ, không sớm hơn 15 tuần và không muộn hơn khi đàn đạt 2% sản lượng. Tăng canxi đột ngột từ ~1% lên >4% có thể làm gà giảm ăn.', src: ['ew'] },
+        { id: 'boost-140', type: 'vaccine', from: 20, to: 20, title: 'Nhắc lại ND + IB + Gumboro (~140 ngày tuổi)', text: 'Lịch của Greenfeed Việt Nam: tiêm nhắc ND, IB, Gumboro lúc 140 ngày tuổi (tiêm dưới da). Nên bổ sung vitamin và điện giải 1–2 ngày trước và sau tiêm để giảm stress.', src: ['greenfeed'] },
+        { id: 'boost-150', type: 'vaccine', from: 21, to: 21, title: 'Nhắc lại ILT + Cúm gia cầm (~150 ngày tuổi)', text: 'Greenfeed: tiêm nhắc ILT và cúm gia cầm lúc 150 ngày tuổi. Hy-Line lưu ý không tiêm ILT trong vòng 7 ngày sau một vắc-xin sống đường hô hấp khác. Vắc-xin cúm phải theo quy định và chương trình của cơ quan thú y địa phương.', src: ['greenfeed', 'hyline'] },
+        { id: 'inact-nd-ib', type: 'vaccine', from: 18, to: 80, periodic: true, title: 'ND + IB bất hoạt (tiêm) định kỳ, mỗi 60–90 ngày', text: 'Merck: ND/IB bất hoạt tiêm mỗi 60–90 ngày, hoặc một liều duy nhất lúc 18 tuần. Hãy chọn cách phù hợp với chương trình của bác sĩ thú y.', src: ['merck'] },
+        { id: 'live-booster', type: 'vaccine', from: 20, to: 80, periodic: true, title: 'ND + IB sống nhắc lại, mỗi 30–60 ngày (đàn đẻ dài ngày)', text: 'Hy-Line: đàn nuôi dài ngày có thể cần nhắc ND/IB sống mỗi 30–60 ngày để giữ miễn dịch niêm mạc; nên có ít nhất một liều dạng phun.', src: ['hyline'] },
+        { id: 'phase1', type: 'feed', from: 19, to: 49, title: 'Thức ăn giai đoạn đẻ 1 (khoảng tuần 19–50)', text: 'Lohmann LB Classic: canxi ≈ 3,9% khẩu phần (4,1 g/gà/ngày khi ăn 105 g), đạm ≈ 17,6%.', src: ['lohmann'] },
+        { id: 'phase2', type: 'feed', from: 50, to: 69, title: 'Thức ăn giai đoạn đẻ 2 (khoảng tuần 50–70)', text: 'Lohmann LB Classic: canxi ≈ 4,19% khẩu phần (4,4 g/gà/ngày), đạm ≈ 17,1%.', src: ['lohmann'] },
+        { id: 'phase3', type: 'feed', from: 70, to: 99, title: 'Thức ăn giai đoạn đẻ 3 (sau tuần 70)', text: 'Lohmann LB Classic: canxi ≈ 4,29% khẩu phần (4,5 g/gà/ngày), đạm ≈ 16,2%.', src: ['lohmann'] },
+        { id: 'lime-1', type: 'calcium', from: 17, to: 37, title: 'Đá vôi: 40% hạt mịn (<2 mm) / 60% hạt thô (2–4 mm)', text: 'Hạt mịn qua ruột trong 2–3 giờ, hạt thô ở lại mề và tan chậm, phù hợp cho quá trình tạo vỏ trứng ban đêm (12–14 giờ).', src: ['ew'] },
+        { id: 'lime-2', type: 'calcium', from: 38, to: 62, title: 'Tăng dần đá vôi hạt thô (tuần 49–62: khoảng 30% mịn / 70% thô)', text: 'Chất lượng vỏ trứng giảm dần theo tuổi gà, nên từ khoảng tuần 38 tăng dần tỷ lệ hạt thô. Theo dõi tỷ lệ trứng vỡ để điều chỉnh.', src: ['ew'] },
+        { id: 'lime-3', type: 'calcium', from: 63, to: 99, title: 'Đá vôi: 25% hạt mịn / 75% hạt thô (từ tuần 63)', text: 'Gà càng già vỏ trứng càng yếu, cần nhiều canxi hạt thô hơn. Theo dõi tỷ lệ trứng vỡ.', src: ['ew'] },
+        { id: 'timing', type: 'calcium', from: 17, to: 99, title: 'Cho ăn nhiều canxi vào chiều', text: 'Cho khoảng 60% khẩu phần vào cuối chiều, 2–3 giờ trước khi tắt đèn, để gà có canxi cho đêm tạo vỏ. Có thể để máng trống 60–90 phút giữa trưa để gà ăn đều.', src: ['ew'] },
+        { id: 'worms', type: 'health', from: 23, to: 99, periodic: true, title: 'Kiểm tra phân và tẩy giun đũa theo kết quả, mỗi 8 tuần', text: 'Bắt đầu kiểm tra khoảng 7 tuần sau khi nhập đàn (giả định nhập đàn lúc 16 tuần tuổi), lặp lại mỗi 8 tuần đến 50 tuần tuổi; chỉ tẩy khi trứng giun trong phân ở mức trung bình đến cao. Sau 50 tuần có thể lặp mỗi 8 tuần mà không cần xét nghiệm. Hỏi thú y về thuốc và thời gian ngưng bán trứng.', src: ['worms'] }
+      ];
+      function careFor(week) {
+        const active = [], upcoming = [], periodic = [];
+        CARE_ITEMS.forEach(item => {
+          const inRange = week >= item.from && week <= item.to;
+          if (item.periodic) { if (inRange) periodic.push(item); }
+          else if (inRange) active.push(item);
+          else if (item.from > week && item.from <= week + 2) upcoming.push(item);
+        });
+        return { active, upcoming, periodic };
+      }
+      function careItemHtml(item) {
+        const sources = item.src.map(key => `<a href="${CARE_SOURCES[key].url}" target="_blank" rel="noopener noreferrer">${escapeHtml(CARE_SOURCES[key].name)}</a>`).join(' · ');
+        return `<div class="care-item ${item.type}"><span class="care-tag">${CARE_LABELS[item.type]}</span><div><div class="care-title">${escapeHtml(item.title)}</div><div class="care-text">${escapeHtml(item.text)}</div><div class="care-src">Nguồn: ${sources}</div></div></div>`;
+      }
+      function careGroupsHtml(week) {
+        const care = careFor(week);
+        const group = (title, items) => items.length ? `<div class="care-group"><h3>${title}</h3>${items.map(careItemHtml).join('')}</div>` : '';
+        return group('Đang áp dụng ở tuần này', care.active) + group('Sắp tới trong 2 tuần', care.upcoming) + group('Nhắc định kỳ', care.periodic) || '<p class="care-empty">Không có mốc chăm sóc nào ở tuần tuổi này.</p>';
+      }
+      // Chỉ tiêu giống CP-T1 (theo bài giới thiệu giống đăng trên Tạp chí Chăn nuôi Việt Nam và nhà phân phối). Đây là số liệu giới thiệu của hãng trong điều kiện nuôi chuẩn.
+      const CPT1 = { layStart: 19, bodyAtLay: '1,5–1,55 kg', peak: 96, sustain: 95, sustainWeeks: 20, yearRate: 87, eggsYear: 319, eggWeight: '56–64 g', feed: '105–115 g/con/ngày', fcr: '2,29', lossMin: 5, lossMax: 8 };
+      function cpProfileHtml(records) {
+        const rated = records.filter(row => row.rate !== null && row.rate !== undefined && Number.isFinite(row.rate));
+        const last7 = rated.slice(-7), avg7 = last7.length ? last7.reduce((sum, row) => sum + row.rate, 0) / last7.length : null;
+        const peak = rated.length ? Math.max(...rated.map(row => row.rate)) : null;
+        const fmt = value => value === null ? '—' : value.toFixed(1).replace('.', ',') + '%';
+        const deathPct = state.initialFlock > 0 ? total(records, 'deaths') / state.initialFlock * 100 : null;
+        const tag = (ok, text) => `<span class="${ok ? 'cp-ok' : 'cp-low'}">${text}</span>`;
+        const rows = [
+          ['Tỷ lệ đẻ đỉnh', `trên ${CPT1.peak}%`, peak === null ? '—' : `${fmt(peak)} ${tag(peak >= CPT1.peak, peak >= CPT1.peak ? 'đạt' : 'thấp hơn')}`],
+          [`Duy trì trên ${CPT1.sustain}% (hơn ${CPT1.sustainWeeks} tuần)`, 'giai đoạn đẻ rộ', avg7 === null ? '—' : `7 ngày gần nhất: ${fmt(avg7)} ${tag(avg7 >= CPT1.sustain, avg7 >= CPT1.sustain ? 'đạt' : `thấp hơn ${(CPT1.sustain - avg7).toFixed(1).replace('.', ',')}%`)}`],
+          ['Tỷ lệ đẻ toàn đàn sau 12 tháng khai thác', `trên ${CPT1.yearRate}% (${CPT1.eggsYear} trứng/mái/năm)`, 'dùng để đối chiếu khi đàn đủ tuổi'],
+          ['Bắt đầu đẻ / khối lượng lên đẻ', `${CPT1.layStart} tuần · ${CPT1.bodyAtLay}`, 'cân mẫu gà để đối chiếu'],
+          ['Khối lượng trứng', CPT1.eggWeight, 'app chưa ghi nhận'],
+          ['Lượng thức ăn', CPT1.feed, 'app chưa ghi nhận'],
+          ['FCR', `${CPT1.fcr} kg thức ăn / kg trứng`, 'app chưa ghi nhận'],
+          ['Chết và loại thải cả chu kỳ', `${CPT1.lossMin}–${CPT1.lossMax}%`, deathPct === null ? '—' : `đã chết ${fmt(deathPct)} đàn đầu kỳ (chưa tính loại thải) ${tag(deathPct <= CPT1.lossMax, deathPct <= CPT1.lossMax ? 'trong mức' : 'vượt mức')}`]
+        ];
+        const src = ['cpt1', 'cpt1b'].map(key => `<a href="${CARE_SOURCES[key].url}" target="_blank" rel="noopener noreferrer">${escapeHtml(CARE_SOURCES[key].name)}</a>`).join(' · ');
+        return `<div class="care-group cp-profile"><h3>Giống CP-T1: chỉ tiêu của hãng và so với trại</h3><table class="cp-table"><thead><tr><th>Chỉ tiêu</th><th>Hãng nêu</th><th>Trại hiện tại</th></tr></thead><tbody>${rows.map(row => `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`).join('')}</tbody></table><div class="care-src">Nguồn: ${src}. Số liệu giới thiệu của hãng trong điều kiện nuôi chuẩn. Bài nêu giống là CP-T1 (trứng trắng hồng).</div></div>`;
+      }
+      const CARE_DISCLAIMER = '<div class="care-note">Giống của trại: CP-T1. Các mốc theo tuần tuổi bên dưới (vắc-xin, canxi, thức ăn) lấy từ tài liệu của các hãng gà đẻ trứng trắng khác (Hy-Line, Lohmann) và cơ quan thú y, vì chưa có tài liệu theo tuần của CP-T1 công khai: nên đối chiếu với Cẩm nang của C.P. Việt Nam. Lịch vắc-xin và thuốc thú y phải theo chỉ định của bác sĩ thú y và quy định địa phương. App không đưa liều lượng thuốc.</div>';
+      function careSourcesHtml() {
+        return `<details><summary>Nguồn tham khảo</summary><ul>${Object.values(CARE_SOURCES).map(source => `<li><a href="${source.url}" target="_blank" rel="noopener noreferrer">${escapeHtml(source.name)}</a></li>`).join('')}</ul></details>`;
+      }
+      function renderCare(records) {
+        const latest = records.at(-1);
+        if (!latest) { els.careAge.textContent = ''; els.careBody.innerHTML = '<p class="care-empty">Chưa có số liệu để xác định tuần tuổi.</p>'; return; }
+        const week = Math.floor(latest.ageDays / 7), care = careFor(week);
+        const upcoming = care.upcoming.length ? ` · ${care.upcoming.length} sắp tới` : '';
+        els.careAge.textContent = `Tuần ${week} · ${ageText(latest.ageDays)} · ${care.active.length + care.periodic.length} mục${upcoming}`;
+        els.careAge.classList.toggle('has-upcoming', care.upcoming.length > 0);
+        els.careBody.innerHTML = cpProfileHtml(records) + careGroupsHtml(week) + CARE_DISCLAIMER + careSourcesHtml();
+      }
+
+      // ---- Cảnh báo
+      function alertListHtml(items, when, okTitle) {
+        return items.length
+          ? items.map(item => `<div class="alert-item ${item.level}" role="alert"><span class="alert-icon" aria-hidden="true">!</span><div><div class="alert-title">${escapeHtml(item.title)}</div><div class="alert-text">${escapeHtml(item.text)}</div><div class="alert-date">Số liệu ngày ${when}</div></div></div>`).join('')
+          : `<div class="alert-item ok"><span class="alert-icon" aria-hidden="true">✓</span><div><div class="alert-title">${okTitle}</div><div class="alert-date">Số liệu ngày ${when}</div></div></div>`;
+      }
+      const ALERT_DAYS = 3;   // cảnh báo ở đầu trang xét 3 ngày gần nhất
+      function renderAlerts(records) {
+        const cfg = normalizeAlerts(state.alerts);
+        if (!records.length) { els.alertZone.innerHTML = ''; lastAlertSignature = null; return; }
+        const first = Math.max(0, records.length - ALERT_DAYS), found = new Map();
+        for (let i = records.length - 1; i >= first; i--) {   // từ ngày mới nhất lùi về trước
+          computeAlerts(records.slice(0, i + 1), cfg).items.forEach(item => {
+            const entry = found.get(item.key);
+            if (entry) entry.dates.push(records[i].date); else found.set(item.key, { item, dates: [records[i].date] });
+          });
+        }
+        const items = [...found.values()];
+        const range = records.length > 1 ? `${formatDate(records[first].date)} đến ${formatDate(records[records.length - 1].date)}` : formatDate(records[0].date);
+        const dayList = dates => dates.map(date => date.slice(8) + '/' + date.slice(5, 7)).join(', ');
+        els.alertZone.innerHTML = items.length
+          ? items.map(({ item, dates }) => `<div class="alert-item ${item.level}" role="alert"><span class="alert-icon" aria-hidden="true">!</span><div><div class="alert-title">${escapeHtml(item.title)}</div><div class="alert-text">${escapeHtml(item.text)}</div><div class="alert-date">${dates.length > 1 ? `Xảy ra ${dates.length} ngày: ${dayList(dates)}` : `Số liệu ngày ${formatDate(dates[0])}`}</div></div></div>`).join('')
+          : `<div class="alert-item ok"><span class="alert-icon" aria-hidden="true">✓</span><div><div class="alert-title">Các chỉ số trong ngưỡng an toàn</div><div class="alert-date">${records.length - first} ngày gần nhất: ${range}</div></div></div>`;
+        const signature = records[records.length - 1].date + '|' + items.map(({ item, dates }) => item.key + item.level + dates.join('+')).join(',');
+        if (signature !== lastAlertSignature) {
+          lastAlertSignature = signature;
+          if (items.length) showToast(`Có ${items.length} cảnh báo trong ${ALERT_DAYS} ngày gần nhất: ${items[0].item.title}${items.length > 1 ? '…' : ''}`, true);
+        }
+      }
+      function openDay(date) {
+        const rows = computedRecords(); const index = rows.findIndex(row => row.date === date); if (index < 0) return;
+        const row = rows[index];
+        const result = computeAlerts(rows.slice(0, index + 1), normalizeAlerts(state.alerts));
+        const week = Math.floor(row.ageDays / 7);
+        const layingTotal = row.whiteEggs + row.brokenEggs;
+        const brokenPct = layingTotal > 0 ? row.brokenEggs / layingTotal * 100 : 0;
+        const deathPct = row.beginning > 0 ? row.deaths / row.beginning * 100 : 0;
+        const pct = value => `${value.toFixed(2).replace('.', ',')}%`;
+        const metric = (label, value, small) => `<div class="metric"><span>${label}</span><strong>${value}</strong>${small ? `<small>${small}</small>` : ''}</div>`;
+        els.dayBody.innerHTML = `
+          <h2 id="dayTitle">Nhật ký ngày ${formatDate(row.date)}</h2>
+          <p class="modal-sub">Tuần tuổi ${week} (${ageText(row.ageDays)}, ${row.ageDays} ngày tuổi)</p>
+          <div class="metric-grid">
+            ${metric('Trứng trắng', numberFormat.format(row.whiteEggs))}
+            ${metric('Trứng đỏ', numberFormat.format(row.redEggs))}
+            ${metric('Trứng vỡ', numberFormat.format(row.brokenEggs), `${pct(brokenPct)} trên trứng trắng + vỡ`)}
+            ${metric('Trứng huỷ', numberFormat.format(row.huyEggs))}
+            ${metric('Gà chết', numberFormat.format(row.deaths), `${pct(deathPct)} đàn`)}
+            ${metric('Gà còn lại', numberFormat.format(row.remaining))}
+            ${metric('Tỷ lệ đẻ', row.rate === null ? '—' : pct(row.rate))}
+            ${metric('Tuần tuổi', String(week), `${row.ageDays} ngày`)}
+          </div>
+          ${row.notes ? `<p class="modal-sub">Ghi chú: ${escapeHtml(row.notes)}</p>` : ''}
+          <h3 class="modal-h">Cảnh báo của ngày này</h3>
+          <div class="alert-zone">${alertListHtml(result.items, formatDate(row.date), 'Ngày này không có cảnh báo')}</div>
+          <details class="modal-care"><summary>Chăm sóc theo tuần tuổi ${week}</summary>${careGroupsHtml(week)}${CARE_DISCLAIMER}</details>
+          ${isAdmin() ? `<div class="form-actions"><button type="button" class="button button-secondary" data-modal-edit="${row.date}">Sửa ngày này</button></div>` : ''}`;
+        els.dayModal.hidden = false;
+        els.dayClose.focus();
+      }
+      function closeDay() { els.dayModal.hidden = true; }
+      function validRecord(row) { return row && /^\d{4}-\d{2}-\d{2}$/.test(String(row.date)); }
+      function normalizeRecord(row) { return { date: String(row.date), whiteEggs: safeNumber(row.whiteEggs), redEggs: safeNumber(row.redEggs), brokenEggs: safeNumber(row.brokenEggs), huyEggs: safeNumber(row.huyEggs), deaths: safeNumber(row.deaths), notes: String(row.notes || '').slice(0, 240) }; }
+      function showToast(message, isError = false) {
+        clearTimeout(toastTimer);
+        els.toastText.textContent = message;
+        els.toast.classList.toggle('error', isError);
+        els.toast.classList.add('show');
+        toastTimer = setTimeout(() => els.toast.classList.remove('show'), 3000);
+      }
+      function resetForm() {
+        editingDate = null;
+        els.form.reset();
+        els.date.value = isEntry() ? serverToday() : todayIso();
+        ['white', 'red', 'broken', 'deaths'].forEach(key => { els[key].value = ''; });
+        els.save.textContent = 'Lưu số liệu';
+        els.editNotice.classList.remove('show');
+        els.shotText.value = ''; els.shotStatus.textContent = '';
+        els.save.disabled = false; const ln = document.querySelector('#lockNotice'); if (ln) ln.hidden = true; if (typeof updateLockUi === 'function') updateLockUi();
+      }
+      function renderSummary(records) {
+        const remaining = records.length ? records[records.length - 1].remaining : safeNumber(state.initialFlock);
+        const deaths = total(records, 'deaths');
+        els.remainingFlock.textContent = numberFormat.format(remaining);
+        els.remainingDetail.textContent = state.initialFlock > 0 ? `Từ ${numberFormat.format(state.initialFlock)} gà đầu kỳ` : 'Hãy nhập số gà đầu kỳ';
+        els.totalWhite.textContent = numberFormat.format(total(records, 'whiteEggs'));
+        els.totalRed.textContent = numberFormat.format(total(records, 'redEggs'));
+        els.totalBroken.textContent = numberFormat.format(total(records, 'brokenEggs'));
+        els.totalHuy.textContent = numberFormat.format(total(records, 'huyEggs'));
+        els.totalEggs.textContent = numberFormat.format(total(records, 'eggs'));
+        els.totalDeaths.textContent = numberFormat.format(deaths);
+        const newest = records.at(-1);
+        els.ageWeeks.textContent = newest ? String(Math.floor(newest.ageDays / 7)) : '0';
+        els.ageDetail.textContent = newest ? `${ageText(newest.ageDays)} · ngày ${formatDate(newest.date)}` : 'Chưa có dữ liệu';
+      }
+      function renderLatest(records) {
+        const latest = records.at(-1);
+        if (!latest) {
+          els.latestTitle.textContent = 'Số liệu mới nhất'; els.latestDate.textContent = '';
+          els.latestSummary.innerHTML = '<p class="today-empty">Chưa có số liệu. Hãy nhập bản ghi đầu tiên ở phía trên.</p>';
+          return;
+        }
+        els.latestTitle.textContent = 'Số liệu mới nhất'; els.latestDate.textContent = formatDate(latest.date);
+        const rate = latest.rate === null ? 'Chưa tính được' : `${latest.rate.toFixed(1).replace('.', ',')}%`;
+        els.latestSummary.innerHTML = `
+          <div class="today-summary">
+            <div class="today-row"><span>Trứng trắng</span><strong>${numberFormat.format(latest.whiteEggs)}</strong></div>
+            <div class="today-row"><span>Trứng đỏ</span><strong>${numberFormat.format(latest.redEggs)}</strong></div>
+            <div class="today-row"><span>Trứng vỡ</span><strong>${numberFormat.format(latest.brokenEggs)}</strong></div>
+            <div class="today-row"><span>Trứng huỷ</span><strong>${numberFormat.format(latest.huyEggs)}</strong></div>
+            <div class="today-row"><span>Gà chết</span><strong>${numberFormat.format(latest.deaths)}</strong></div>
+            <div class="today-row"><span>Tuần tuổi</span><strong>${ageText(latest.ageDays)}</strong></div>
+            <div class="today-row rate"><span>Tỷ lệ đẻ</span><strong>${rate}</strong></div>
+          </div>`;
+      }
+      function renderPager(pageCount) {
+        if (pageCount <= 1) { els.pager.innerHTML = ''; return; }
+        const pages = [];
+        for (let page = 1; page <= pageCount; page++) {
+          if (page === 1 || page === pageCount || Math.abs(page - historyPage) <= 1) pages.push(page);
+          else if (pages[pages.length - 1] !== '…') pages.push('…');
+        }
+        els.pager.innerHTML = `<button type="button" data-page="${historyPage - 1}" ${historyPage === 1 ? 'disabled' : ''} aria-label="Trang trước">‹ Trước</button>`
+          + pages.map(page => page === '…' ? '<span class="gap">…</span>' : `<button type="button" data-page="${page}" ${page === historyPage ? 'aria-current="page"' : ''}>${page}</button>`).join('')
+          + `<button type="button" data-page="${historyPage + 1}" ${historyPage === pageCount ? 'disabled' : ''} aria-label="Trang sau">Sau ›</button>`;
+      }
+      function renderHistory(records) {
+        const display = [...records].reverse();
+        const pageCount = Math.max(1, Math.ceil(display.length / PAGE_SIZE));
+        historyPage = Math.min(Math.max(1, historyPage), pageCount);
+        const from = (historyPage - 1) * PAGE_SIZE, pageRows = display.slice(from, from + PAGE_SIZE);
+        els.recordCount.textContent = display.length ? `${numberFormat.format(display.length)} bản ghi đã lưu · đang xem ${from + 1}–${from + pageRows.length}` : 'Chưa có bản ghi';
+        renderPager(pageCount);
+        if (!display.length) { els.history.innerHTML = '<tr><td class="empty-row" colspan="11">Chưa có số liệu hằng ngày.</td></tr>'; return; }
+        els.history.innerHTML = pageRows.map(row => `
+          <tr class="clickable" data-detail="${row.date}" title="Bấm để xem chi tiết ngày này">
+            <td>${formatDate(row.date)}</td>
+            <td title="${row.ageDays} ngày tuổi">${Math.floor(row.ageDays / 7)} tuần</td>
+            <td class="number">${numberFormat.format(row.whiteEggs)}</td>
+            <td class="number">${numberFormat.format(row.redEggs)}</td>
+            <td class="number">${numberFormat.format(row.brokenEggs)}</td>
+            <td class="number">${numberFormat.format(row.huyEggs)}</td>
+            <td class="number">${numberFormat.format(row.deaths)}</td>
+            <td class="number">${numberFormat.format(row.remaining)}</td>
+            <td class="number">${row.rate === null ? '—' : `${row.rate.toFixed(1).replace('.', ',')}%`}</td>
+            <td class="note" title="${escapeHtml(row.notes)}">${escapeHtml(row.notes) || '—'}</td>
+            <td class="admin-only"><div class="table-action"><button class="small-button" type="button" data-edit="${row.date}">Sửa</button><button class="small-button delete" type="button" data-delete="${row.date}">Xóa</button></div></td>
+          </tr>`).join('');
+      }
+      function isoFromMs(ms) {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(ms));
+      }
+      function dayMonth(date) { const [, month, day] = date.split('-'); return `${day}/${month}`; }
+      // 7 ngày liên tiếp kết thúc ở ngày có số liệu mới nhất; ngày chưa có bản ghi để trống (không vẽ giả số 0)
+      function lastSevenDays(records) {
+        if (!records.length) return [];
+        const end = parseDate(records[records.length - 1].date).getTime();
+        const byDate = new Map(records.map(row => [row.date, row]));
+        return Array.from({ length: 7 }, (_, index) => {
+          const date = isoFromMs(end - (6 - index) * 86400000);
+          return { date, row: byDate.get(date) || null };
+        });
+      }
+      function renderChart(records) {
+        const canvas = els.chart;
+        const context = canvas.getContext('2d');
+        const ratio = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        // Khung chưa có kích thước thật (đang tải / bị ẩn): không vẽ, tránh canvas 1px bị kéo giãn thành khối màu đặc. ResizeObserver sẽ vẽ lại khi có kích thước.
+        if (rect.width < 20 || rect.height < 20) { canvas.width = 0; canvas.height = 0; return; }
+        canvas.width = Math.max(1, Math.floor(rect.width * ratio));
+        canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        const width = rect.width, height = rect.height;
+        context.clearRect(0, 0, width, height);
+        const days = lastSevenDays(records);
+        if (!days.length) {
+          context.fillStyle = '#758178'; context.font = '14px system-ui, sans-serif'; context.textAlign = 'center';
+          context.fillText('Chưa có dữ liệu để vẽ biểu đồ', width / 2, height / 2);
+          els.chartRange.textContent = 'Chưa có dữ liệu'; return;
+        }
+        els.chartRange.textContent = `${dayMonth(days[0].date)} – ${dayMonth(days[days.length - 1].date)}`;
+        // Mỗi loại trứng một khung riêng (thang riêng, cột bắt đầu từ 0) để trứng đỏ không bị trứng trắng "nuốt" mất
+        const panels = [{ field: 'whiteEggs', label: 'Trứng trắng', color: '#d9a400' }, { field: 'rate', label: 'Tỷ lệ đẻ', color: '#1f9d55', rate: true }, { field: 'redEggs', label: 'Trứng đỏ', color: '#c8372d' }];
+        const padding = { top: 4, right: 6, bottom: 24, left: 6 };
+        const plotW = width - padding.left - padding.right;
+        const panelH = (height - padding.top - padding.bottom) / panels.length;
+        const slot = plotW / days.length, barW = Math.min(48, slot * 0.58);
+        panels.forEach((panel, p) => {
+          const top = padding.top + p * panelH, baseY = top + panelH - 6, maxBar = baseY - (top + 34);
+          if (panel.rate) {
+            context.textAlign = 'left'; context.font = '600 12px system-ui, sans-serif'; context.fillStyle = panel.color; context.fillText(panel.label + ' (%)', padding.left, top + 13);
+            context.strokeStyle = '#eaddc8'; context.lineWidth = 1; context.beginPath(); context.moveTo(padding.left, baseY); context.lineTo(width - padding.right, baseY); context.stroke();
+            const vals = days.map(d => d.row && Number.isFinite(d.row.rate) ? d.row.rate : null), nums = vals.filter(v => v !== null);
+            if (!nums.length) return;
+            const lo = Math.min(...nums), hi = Math.max(...nums), span = Math.max(hi - lo, 2), yLo = lo - span * .25, yHi = hi + span * .25;
+            const yy = v => baseY - 4 - (v - yLo) / (yHi - yLo) * (maxBar - 4);
+            context.strokeStyle = '#1f9d55'; context.lineWidth = 2; context.beginPath(); let started = false;
+            vals.forEach((v, i) => { if (v === null) return; const cx = padding.left + slot * i + slot / 2; if (!started) { context.moveTo(cx, yy(v)); started = true; } else context.lineTo(cx, yy(v)); }); context.stroke();
+            vals.forEach((v, i) => { if (v === null) return; const cx = padding.left + slot * i + slot / 2, cy = yy(v); context.fillStyle = '#1f9d55'; context.beginPath(); context.arc(cx, cy, 4, 0, Math.PI * 2); context.fill(); context.font = '700 11px system-ui, sans-serif'; context.fillStyle = '#146c3a'; context.textAlign = 'center'; context.fillText(pctText(v), cx, cy - 9); });
+            return;
+          }
+          const maxValue = Math.max(1, ...days.map(day => day.row ? safeNumber(day.row[panel.field]) : 0));
+          context.textAlign = 'left'; context.font = '600 12px system-ui, sans-serif'; context.fillStyle = panel.color;
+          context.fillText(panel.label, padding.left, top + 13);
+          context.strokeStyle = '#eaddc8'; context.lineWidth = 1; context.beginPath(); context.moveTo(padding.left, baseY); context.lineTo(width - padding.right, baseY); context.stroke();
+          days.forEach((day, index) => {
+            const cx = padding.left + slot * index + slot / 2;
+            context.textAlign = 'center';
+            if (!day.row) { context.font = '11px system-ui, sans-serif'; context.fillStyle = '#9aa69d'; context.fillText('—', cx, baseY - 5); return; }
+            const value = safeNumber(day.row[panel.field]);
+            const barHeight = Math.max(value > 0 ? 2 : 0, value / maxValue * maxBar);
+            context.fillStyle = panel.color; context.fillRect(cx - barW / 2, baseY - barHeight, barW, barHeight);
+            context.font = '600 11px system-ui, sans-serif'; context.fillStyle = '#344238';
+            context.fillText(numberFormat.format(value), cx, baseY - barHeight - 5);
+          });
+        });
+        context.font = '11px system-ui, sans-serif'; context.fillStyle = '#758178'; context.textAlign = 'center';
+        days.forEach((day, index) => context.fillText(dayMonth(day.date), padding.left + slot * index + slot / 2, height - 8));
+      }
+      function renderEntryList() {
+        const today = serverToday();
+        const from = new Date(parseDate(today).getTime() - 6 * 86400000);
+        const fromIso = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(from);
+        const approved = state.records.filter(row => row.date >= fromIso && row.date <= today).map(row => ({ ...row, wait: false }));
+        const waiting = subs.filter(row => row.date >= fromIso && row.date <= today && !approved.some(x => x.date === row.date)).map(row => ({ ...normalizeRecord(row), wait: true }));
+        const rows = [...approved, ...waiting].sort((a, b) => b.date.localeCompare(a.date));
+        els.entryListDesc.textContent = rows.length ? `${rows.length} ngày trong 7 ngày gần đây` : '7 ngày gần đây';
+        els.entryBody.innerHTML = rows.length ? rows.map(row => `<tr><td>${formatDate(row.date)}${row.date === today ? ' <strong>(hôm nay)</strong>' : ''}</td><td class="number">${numberFormat.format(row.whiteEggs)}</td><td class="number">${numberFormat.format(row.redEggs)}</td><td class="number">${numberFormat.format(row.brokenEggs)}</td><td class="number">${numberFormat.format(row.deaths)}</td><td>${escapeHtml(row.notes)}</td><td>${row.wait ? (sync.pending[row.date] ? '<span class="badge-wait">Đang gửi…</span>' : '<span class="badge-wait">Chờ duyệt</span>') : '<span class="badge-ok">Đã ghi vào sổ</span>'}</td><td>${row.wait ? `<button class="small-button" type="button" data-edit="${row.date}">Sửa</button>` : ''}</td></tr>`).join('') : '<tr><td colspan="8">Bạn chưa nhập số liệu nào trong 7 ngày gần đây.</td></tr>';
+      }
+      function renderSubs() {
+        const list = isAdmin() ? subs : [];
+        els.subsCard.hidden = !list.length;
+        els.subsList.innerHTML = list.map(s => `<div class="sub-item"><div class="sub-text"><strong>${formatDate(s.date)}</strong> · ${escapeHtml(s.by)} — trắng ${numberFormat.format(s.whiteEggs)}, đỏ ${numberFormat.format(s.redEggs)}, vỡ ${numberFormat.format(s.brokenEggs)}, chết ${numberFormat.format(s.deaths)}${s.had && s.old ? `<small>⚠ Sửa số đã ghi trong sổ (trắng ${numberFormat.format(s.old.whiteEggs)}, đỏ ${numberFormat.format(s.old.redEggs)}, vỡ ${numberFormat.format(s.old.brokenEggs)}, chết ${numberFormat.format(s.old.deaths)}). Duyệt sẽ ghi đè số này.</small>` : ''}${s.notes ? `<small>Ghi chú: ${escapeHtml(s.notes)}</small>` : ''}</div><div class="table-action"><button class="small-button" type="button" data-approve="${s.date}">Duyệt</button><button class="small-button delete" type="button" data-rejectsub="${s.date}">Từ chối</button></div></div>`).join('');
+      }
+      function render() {
+        if (isEntry()) { renderEntryList(); updateLockUi(); return; }
+        renderSubs();
+        const records = computedRecords();
+        els.initialFlock.value = state.initialFlock || '';
+        const alerts = normalizeAlerts(state.alerts);
+        if (document.activeElement !== els.alertDeathDay) els.alertDeathDay.value = alerts.deathDay;
+        if (document.activeElement !== els.alertDeath7) els.alertDeath7.value = alerts.death7;
+        if (document.activeElement !== els.alertRateMin) els.alertRateMin.value = alerts.rateMin;
+        if (document.activeElement !== els.alertRateDrop) els.alertRateDrop.value = alerts.rateDrop;
+        renderAlerts(records); renderCare(records);
+        renderSummary(records); renderLatest(records); renderHistory(records); renderChart(records); renderReport(records);
+      }
+      function downloadFile(filename, content, mime) {
+        const blob = new Blob([content], { type: mime }); const url = URL.createObjectURL(blob); const link = document.createElement('a');
+        link.href = url; link.download = filename; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
+      }
+      function csvCell(value) { return `"${String(value ?? '').replaceAll('"', '""')}"`; }
+      function exportCsv() {
+        const rows = computedRecords();
+        const headers = ['Ngày', 'Tuần tuổi', 'Trứng trắng', 'Trứng đỏ', 'Trứng vỡ', 'Trứng huỷ', 'Gà chết', 'Gà còn lại', 'Tỷ lệ đẻ (%)', 'Ghi chú'];
+        const data = rows.map(row => [row.date, (row.ageDays / 7).toFixed(2), row.whiteEggs, row.redEggs, row.brokenEggs, row.huyEggs, row.deaths, row.remaining, row.rate === null ? '' : row.rate.toFixed(2), row.notes]);
+        const csv = '\ufeff' + [headers, ...data].map(row => row.map(csvCell).join(',')).join('\r\n');
+        downloadFile(`trai-ga-${todayIso()}.csv`, csv, 'text/csv;charset=utf-8'); showToast('Đã xuất file CSV.');
+      }
+      function backup() {
+        const content = JSON.stringify({ app: 'Quản lý trại gà', version: 1, exportedAt: new Date().toISOString(), initialFlock: state.initialFlock, records: sortedRecords() }, null, 2);
+        downloadFile(`sao-luu-trai-ga-${todayIso()}.json`, content, 'application/json'); showToast('Đã tạo bản sao lưu.');
+      }
+      function isLockedDay(date) { return isEntry() && !!date && (lockedDates.includes(date) || state.records.some(item => item.date === date)); }
+      function updateLockUi() {
+        const n = document.querySelector('#lockNotice'); if (!n) return;
+        const lock = isLockedDay(els.date.value);
+        n.hidden = !lock; n.textContent = lock ? `Ngày ${formatDate(els.date.value)} đã được quản trị viên duyệt và ghi vào sổ nên không sửa được. Cần sửa hãy nhờ quản trị viên.` : '';
+        els.save.disabled = lock;
+      }
+      function openForm(open) {
+        const t = document.querySelector('#formToggle'); if (!t) return;
+        t.setAttribute('aria-expanded', open ? 'true' : 'false'); document.querySelector('#formBody').hidden = !open;
+        document.querySelector('#formHint').textContent = open ? '' : 'Bấm để mở';
+      }
+      els.date.addEventListener('input', updateLockUi); els.date.addEventListener('change', updateLockUi);
+      document.querySelector('#formToggle').addEventListener('click', () => openForm(document.querySelector('#formBody').hidden));
+      function startEdit(date) {
+        if (!isAdmin() && !isEntry()) return;
+        const row = isEntry() ? subs.find(item => item.date === date) : state.records.find(item => item.date === date); if (!row) return;
+        openForm(true); editingDate = date; els.date.value = row.date; els.white.value = row.whiteEggs; els.red.value = row.redEggs; els.broken.value = row.brokenEggs; els.deaths.value = row.deaths; els.notes.value = row.notes;
+        els.save.textContent = 'Cập nhật số liệu'; els.editNotice.classList.add('show'); updateLockUi(); els.date.focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      function removeRecord(date) {
+        if (!isAdmin()) return;
+        const row = state.records.find(item => item.date === date); if (!row) return;
+        if (!window.confirm(`Xóa bản ghi ngày ${formatDate(date)}?`)) return;
+        state.records = state.records.filter(item => item.date !== date); saveState(); queueSync(date, 'd');
+        if (editingDate === date) resetForm(); render(); showToast('Đã xóa bản ghi.');
+      }
+      els.form.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!canWrite()) { showToast('Bạn chỉ có quyền xem số liệu.', true); return; }
+        const date = els.date.value;
+        if (isEntry() && date > serverToday()) { showToast('Không được nhập ngày chưa tới.', true); return; }
+        if (!date) { showToast('Hãy chọn ngày cần nhập.', true); return; }
+        if (isLockedDay(date)) { updateLockUi(); showToast('Ngày này đã được duyệt, tài khoản nhập liệu không sửa được.', true); return; }
+        const record = { date, whiteEggs: safeNumber(els.white.value), redEggs: safeNumber(els.red.value), brokenEggs: safeNumber(els.broken.value), huyEggs: isEntry() ? 0 : safeNumber((state.records.find(item => item.date === (editingDate || date)) || {}).huyEggs), deaths: safeNumber(els.deaths.value), notes: els.notes.value.trim().slice(0, 240) };
+        if (isEntry()) {
+          subs = [...subs.filter(s => s.date !== date), { date, by: sync.name, ...record }];
+          render(); queueSync(date, 'u'); resetForm(); showToast('Đã gửi số liệu, đang chờ quản trị viên duyệt.');
+          return;
+        }
+        if (editingDate && date !== editingDate && state.records.some(item => item.date === date)) { showToast('Ngày này đã có bản ghi. Hãy cập nhật bản ghi sẵn có.', true); return; }
+        const existing = state.records.findIndex(item => item.date === (editingDate || date));
+        if (!isEntry() && record.deaths > 0 && state.initialFlock === 0) { showToast('Hãy nhập số gà đầu kỳ trước khi lưu số gà chết.', true); els.initialFlock.focus(); return; }
+        const flockBefore = isEntry() ? Infinity : flockBeforeDate(date, editingDate || date);
+        if (record.deaths > flockBefore) { showToast(`Số gà chết không thể lớn hơn ${numberFormat.format(flockBefore)} gà hiện có vào ngày này.`, true); return; }
+        if (existing >= 0) { state.records.splice(existing, 1, record); } else { state.records.push(record); }
+        if (existing < 0) historyPage = 1; saveState(); render(); const updated = existing >= 0; if (editingDate && editingDate !== date) queueSync(editingDate, 'd'); queueSync(date, 'u'); resetForm(); showToast(updated ? 'Đã cập nhật số liệu.' : 'Đã lưu số liệu trong ngày.');
+      });
+      ['white', 'red', 'broken', 'deaths'].forEach(key => {
+        els[key].addEventListener('focus', () => setTimeout(() => els[key].select(), 0));
+      });
+      els.pager.addEventListener('click', event => {
+        const button = event.target.closest('[data-page]'); if (!button || button.disabled) return;
+        historyPage = Number(button.dataset.page); render();
+        document.querySelector('#historyBody').closest('.history-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      els.careToggle.addEventListener('click', () => {
+        const open = els.careBody.hidden;
+        els.careBody.hidden = !open; els.careToggle.setAttribute('aria-expanded', String(open));
+      });
+      els.dayClose.addEventListener('click', closeDay);
+      els.dayModal.addEventListener('click', event => { if (event.target === els.dayModal) closeDay(); });
+      els.dayBody.addEventListener('click', event => {
+        const edit = event.target.closest('[data-modal-edit]');
+        if (edit && isAdmin()) { closeDay(); startEdit(edit.dataset.modalEdit); }
+      });
+      document.addEventListener('keydown', event => { if (event.key === 'Escape' && !els.dayModal.hidden) closeDay(); });
+
+
+      // ---- Báo cáo tỷ lệ đẻ
+      let reportOn = false, rateRange = 30, rateHover = -1, rateGeo = null;
+      const RC = { rate: '#1f9d55', avg: '#7a8594', min: '#f0a30a', std: '#7b8794' };
+      function pctText(value, digits = 1) { return value === null || value === undefined || !Number.isFinite(value) ? '—' : value.toFixed(digits).replace('.', ',') + '%'; }
+      function meanOf(list) { return list.length ? list.reduce((a, b) => a + b, 0) / list.length : null; }
+      function setView(view) {
+        reportOn = view === 'report' && !!sync.role && !isEntry();
+        document.body.classList.toggle('view-report', reportOn);
+        document.querySelectorAll('.view-tab').forEach(btn => { const on = btn.dataset.view === (reportOn ? 'report' : 'main'); btn.classList.toggle('active', on); btn.setAttribute('aria-pressed', String(on)); });
+        if (reportOn) { renderReport(computedRecords()); window.scrollTo({ top: 0 }); }
+      }
+      function setupCanvas(canvas) {
+        const ctx = canvas.getContext('2d'), ratio = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect();
+        if (rect.width < 20 || rect.height < 20) { canvas.width = 0; canvas.height = 0; return { ctx, width: 0, height: 0 }; }
+        canvas.width = Math.max(1, Math.floor(rect.width * ratio)); canvas.height = Math.max(1, Math.floor(rect.height * ratio));
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.clearRect(0, 0, rect.width, rect.height);
+        return { ctx, width: rect.width, height: rect.height };
+      }
+      function emptyChart(ctx, width, height, text) { ctx.fillStyle = '#758178'; ctx.font = '14px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(text, width / 2, height / 2); }
+      function renderKpis(rated, cfg) {
+        const box = (color, bg, label, value, sub, tip) => `<div class="card kpi" style="--kc:${color};--kb:${bg}" title="${escapeHtml(tip)}"><div class="k-label">${label}</div><div class="k-value">${value}</div><div class="k-sub">${sub}</div></div>`;
+        if (!rated.length) { els.reportKpis.innerHTML = ''; els.kpiNote.textContent = ''; return; }
+        const last = rated[rated.length - 1], l7 = rated.slice(-7), p7 = rated.slice(-14, -7), l30 = rated.slice(-30);
+        const a7 = meanOf(l7.map(x => x.rate)), ap7 = p7.length >= 3 ? meanOf(p7.map(x => x.rate)) : null, p30 = rated.slice(-60, -30), ap30 = p30.length >= 7 ? meanOf(p30.map(x => x.rate)) : null, a30 = meanOf(l30.map(x => x.rate));
+        const peak = rated.reduce((m, x) => x.rate > m.rate ? x : m, rated[0]);
+        const low30 = l30.reduce((m, x) => x.rate < m.rate ? x : m, l30[0]);
+        const lim = pctText(cfg.rateMin, 0), below30 = l30.filter(x => x.rate < cfg.rateMin).length, belowAll = rated.filter(x => x.rate < cfg.rateMin).length;
+        const range = list => list.length > 1 ? `${dayMonth(list[0].date)} → ${dayMonth(list[list.length - 1].date)}` : dayMonth(list[0].date);
+        const mkDelta = (cur, prev, label, none, list) => prev === null ? none : (() => { const d = cur - prev; return `<span class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '▲ tăng ' : '▼ giảm '}${Math.abs(d).toFixed(1).replace('.', ',')}%</span> so với ${label} trước đó<br>${range(list)} (${pctText(prev)})`; })();
+        const delta = mkDelta(a7, ap7, '7 ngày', 'Chưa đủ dữ liệu để so với tuần trước', p7), delta30 = mkDelta(a30, ap30, '30 ngày', 'Chưa đủ dữ liệu để so với 30 ngày trước', p30);
+        const below87 = rated.filter(x => x.rate < 87).length;
+        els.reportKpis.innerHTML =
+          box('#1f9d55', '#e3f6ea', 'Ngày mới nhất', pctText(last.rate), `Ngày ${formatDate(last.date)}`, 'Tỷ lệ đẻ của ngày cuối cùng có số liệu') +
+          box('#7a8594', '#eceff3', '7 ngày gần nhất', pctText(a7), `${l7.length} ngày: ${range(l7)}<br>${delta}`, 'Trung bình cộng tỷ lệ đẻ của 7 ngày gần nhất có số liệu') +
+          box('#8a5a2b', '#f7ece0', '30 ngày gần nhất', pctText(a30), `${l30.length} ngày: ${range(l30)}<br>${delta30}`, 'Trung bình cộng tỷ lệ đẻ của 30 ngày gần nhất có số liệu') +
+          box('#b08400', '#fff6cc', 'Cao nhất cả quá trình', pctText(peak.rate), `Ngày ${formatDate(peak.date)}`, 'Ngày có tỷ lệ đẻ cao nhất trong toàn bộ số liệu đã nhập') +
+          box('#c0392b', '#ffe5df', 'Thấp nhất trong 30 ngày', pctText(low30.rate), `Ngày ${formatDate(low30.date)}`, 'Ngày có tỷ lệ đẻ thấp nhất trong 30 ngày gần nhất');
+        els.kpiNote.textContent = '';
+      }
+      function drawRateChart() {
+        const { ctx, width, height } = setupCanvas(els.rateChart);
+        if (!width) { rateGeo = null; return; }
+        const cfg = normalizeAlerts(state.alerts), all = computedRecords().filter(x => x.rate !== null);
+        const data = rateRange ? all.slice(-rateRange) : all;
+        if (data.length < 2) { rateGeo = null; emptyChart(ctx, width, height, 'Cần ít nhất 2 ngày số liệu để vẽ biểu đồ'); return; }
+        // trung bình trượt 7 ngày (tính trên toàn bộ lịch sử để đoạn đầu không bị lệch)
+        const idxAll = new Map(all.map((x, i) => [x.date, i]));
+        const ma = data.map(x => { const i = idxAll.get(x.date); return meanOf(all.slice(Math.max(0, i - 6), i + 1).map(y => y.rate)); });
+        const rates = data.map(x => x.rate), lo = Math.min(...rates, ma.reduce((a, b) => Math.min(a, b), 100), cfg.rateMin), hi = Math.max(...rates, CPT1.sustain);
+        const ymin = Math.max(0, Math.floor((lo - 3) / 5) * 5), ymax = Math.min(100, Math.max(ymin + 10, Math.ceil((hi + 1) / 5) * 5));
+        const pad = { l: 44, r: 14, t: 16, b: 30 }, w = width - pad.l - pad.r, h = height - pad.t - pad.b;
+        const X = i => pad.l + (data.length === 1 ? w / 2 : w * i / (data.length - 1)), Y = v => pad.t + h * (1 - (Math.min(ymax, Math.max(ymin, v)) - ymin) / (ymax - ymin));
+        ctx.font = '11px system-ui, sans-serif'; ctx.textAlign = 'right'; ctx.lineWidth = 1;
+        for (let v = ymin; v <= ymax + 0.001; v += 5) { ctx.strokeStyle = '#e4ebe5'; ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(width - pad.r, Y(v)); ctx.stroke(); ctx.fillStyle = '#758178'; ctx.fillText(v + '%', pad.l - 7, Y(v) + 4); }
+        // vùng dưới ngưỡng tối thiểu
+        if (cfg.rateMin > ymin) { ctx.fillStyle = 'rgba(229,83,61,.07)'; ctx.fillRect(pad.l, Y(cfg.rateMin), w, Y(ymin) - Y(cfg.rateMin)); }
+        const refLine = (v, color, label) => { if (v < ymin || v > ymax) return; ctx.save(); ctx.setLineDash([6, 4]); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(width - pad.r, Y(v)); ctx.stroke(); ctx.restore(); ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.font = '600 11px system-ui, sans-serif'; ctx.fillText(label, pad.l + 6, Y(v) - 5); };
+        refLine(cfg.rateMin, RC.min, `Ngưỡng tối thiểu ${pctText(cfg.rateMin, 0)}`);
+        refLine(CPT1.sustain, RC.std, `Chuẩn CP-T1 trên ${CPT1.sustain}%`);
+        const line = (values, color, width2, dash) => { ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = width2; ctx.lineJoin = 'round'; if (dash) ctx.setLineDash(dash); ctx.beginPath(); values.forEach((v, i) => i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v))); ctx.stroke(); ctx.restore(); };
+        // vùng tô dưới đường tỷ lệ
+        ctx.fillStyle = 'rgba(31,157,85,.10)'; ctx.beginPath(); ctx.moveTo(X(0), Y(ymin)); rates.forEach((v, i) => ctx.lineTo(X(i), Y(v))); ctx.lineTo(X(rates.length - 1), Y(ymin)); ctx.closePath(); ctx.fill();
+        line(ma, RC.avg, 2, [7, 4]); line(rates, RC.rate, 2.4);
+        if (data.length <= 45) rates.forEach((v, i) => { ctx.fillStyle = v < cfg.rateMin ? '#e5533d' : RC.rate; ctx.beginPath(); ctx.arc(X(i), Y(v), 3.2, 0, Math.PI * 2); ctx.fill(); });
+        // nhãn ngày
+        ctx.fillStyle = '#758178'; ctx.font = '11px system-ui, sans-serif'; ctx.textAlign = 'center';
+        const step = Math.max(1, Math.ceil(data.length / Math.max(2, Math.floor(w / 62))));
+        data.forEach((x, i) => { if ((i % step === 0 && data.length - 1 - i >= step * .6) || i === data.length - 1) ctx.fillText(dayMonth(x.date), X(i), height - 9); });
+        rateGeo = { data, ma, X, Y, pad, width, height };
+        if (rateHover >= 0 && rateHover < data.length) {
+          const i = rateHover, x = X(i);
+          ctx.strokeStyle = 'rgba(62,30,16,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + h); ctx.stroke();
+          ctx.fillStyle = '#fff'; ctx.strokeStyle = RC.rate; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(x, Y(rates[i]), 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+          const bw = 150, bh = 62, bx = Math.min(width - bw - 4, Math.max(4, x - bw / 2)), by = Math.max(4, Y(rates[i]) - bh - 12);
+          ctx.fillStyle = 'rgba(62,30,16,.94)'; ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 8); else ctx.rect(bx, by, bw, bh); ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.textAlign = 'left'; ctx.font = '600 12px system-ui, sans-serif'; ctx.fillText(formatDate(data[i].date), bx + 10, by + 18);
+          ctx.font = '700 13px system-ui, sans-serif'; ctx.fillText('Tỷ lệ đẻ: ' + pctText(rates[i], 2), bx + 10, by + 37);
+          ctx.font = '12px system-ui, sans-serif'; ctx.fillStyle = '#b9d7c4'; ctx.fillText('TB 7 ngày: ' + pctText(ma[i], 2), bx + 10, by + 54);
+        }
+        els.rateLegend.innerHTML = `<span class="legend-item"><i class="legend-dot" style="background:${RC.rate}"></i>Tỷ lệ đẻ mỗi ngày</span><span class="legend-item"><i class="legend-dot" style="background:${RC.avg}"></i>Trung bình 7 ngày</span><span class="legend-item"><i class="legend-dot" style="background:${RC.min}"></i>Ngưỡng tối thiểu</span><span class="legend-item"><i class="legend-dot" style="background:${RC.std}"></i>Chuẩn CP-T1</span>`;
+      }
+      function weekStats(records) {
+        const map = new Map();
+        records.forEach(row => { const wk = Math.floor(row.ageDays / 7); if (!map.has(wk)) map.set(wk, { week: wk, rows: [] }); map.get(wk).rows.push(row); });
+        return [...map.values()].sort((a, b) => a.week - b.week).map(item => {
+          const rated = item.rows.filter(x => x.rate !== null);
+          return { week: item.week, days: item.rows.length, from: item.rows[0].date, to: item.rows[item.rows.length - 1].date, avg: meanOf(rated.map(x => x.rate)), eggs: item.rows.reduce((s, x) => s + x.eggs, 0), deaths: item.rows.reduce((s, x) => s + x.deaths, 0) };
+        });
+      }
+      function drawWeekChart() {
+        const { ctx, width, height } = setupCanvas(els.weekChart);
+        if (!width) return;
+        const cfg = normalizeAlerts(state.alerts), weeks = weekStats(computedRecords()).filter(x => x.avg !== null);
+        if (!weeks.length) { emptyChart(ctx, width, height, 'Chưa có dữ liệu'); return; }
+        const pad = { l: 44, r: 12, t: 22, b: 32 }, w = width - pad.l - pad.r, h = height - pad.t - pad.b;
+        const lo = Math.min(...weeks.map(x => x.avg), cfg.rateMin), ymin = Math.max(0, Math.floor((lo - 5) / 5) * 5), ymax = 100;
+        const Y = v => pad.t + h * (1 - (v - ymin) / (ymax - ymin));
+        ctx.font = '11px system-ui, sans-serif'; ctx.textAlign = 'right';
+        for (let v = ymin, gs = (ymax - ymin) > 40 ? 20 : (ymax - ymin) > 20 ? 10 : 5; v <= ymax; v += gs) { ctx.strokeStyle = '#ece7cf'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(width - pad.r, Y(v)); ctx.stroke(); ctx.fillStyle = '#758178'; ctx.fillText(v + '%', pad.l - 7, Y(v) + 4); }
+        const slot = w / weeks.length, bw = Math.min(46, slot * .7), step = slot >= 38 ? 1 : slot >= 22 ? 2 : 3;
+        const lm = document.querySelector('#wkLegMid'), ll = document.querySelector('#wkLegLow');
+        if (lm) lm.textContent = 'Từ ' + pctText(cfg.rateMin, 0) + ' đến dưới 95%'; if (ll) ll.textContent = 'Dưới ' + pctText(cfg.rateMin, 0) + ' (thấp hơn ngưỡng tối thiểu)';
+        weeks.forEach((x, i) => {
+          const cx = pad.l + slot * i + slot / 2, top = Y(x.avg), color = x.avg >= CPT1.sustain ? '#1f9d55' : x.avg >= cfg.rateMin ? '#f0a30a' : '#e5533d';
+          ctx.fillStyle = color; ctx.globalAlpha = x.days < 7 ? .55 : 1; ctx.fillRect(cx - bw / 2, top, bw, Y(ymin) - top); ctx.globalAlpha = 1;
+          if (i % step === 0 || i === weeks.length - 1) {
+            ctx.fillStyle = '#26352b'; ctx.textAlign = 'center'; ctx.font = '700 ' + (slot < 38 ? 10 : 11) + 'px system-ui, sans-serif'; ctx.fillText(pctText(x.avg, slot < 38 ? 0 : 1), cx, top - 6);
+            ctx.fillStyle = '#758178'; ctx.font = '11px system-ui, sans-serif'; ctx.fillText('T' + x.week + (x.days < 7 ? '*' : ''), cx, height - 10);
+          }
+        });
+        const ly = Y(cfg.rateMin), txt = 'Ngưỡng tối thiểu ' + pctText(cfg.rateMin, 0);
+        ctx.save(); ctx.setLineDash([6, 4]); ctx.strokeStyle = '#8a5a00'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(width - pad.r, ly); ctx.stroke(); ctx.restore();
+        ctx.font = '700 11px system-ui, sans-serif'; ctx.textAlign = 'left';
+        const tw = txt.length * 6.3 + 12; ctx.fillStyle = 'rgba(255,248,225,.96)'; ctx.fillRect(pad.l + 4, ly - 19, tw, 17);
+        ctx.fillStyle = '#8a5a00'; ctx.fillText(txt, pad.l + 10, ly - 6);
+        els.weekNote.textContent = weeks.some(x => x.days < 7) ? '* tuần chưa đủ 7 ngày (màu nhạt)' : '';
+      }
+      function renderWeekTable() {
+        const weeks = weekStats(computedRecords()), shown = weeks.slice().reverse();
+        els.weekTable.innerHTML = shown.length ? shown.map((x, i) => {
+          const prev = weeks[weeks.length - 1 - i - 1], d = prev && prev.avg !== null && x.avg !== null ? x.avg - prev.avg : null;
+          const cmp = d === null ? '—' : `<span class="${d >= 0 ? 'up' : 'down'}">${d >= 0 ? '▲ +' : '▼ '}${d.toFixed(1).replace('.', ',')}</span>`;
+          return `<tr class="${i === 0 ? 'cur' : ''}"><td>Tuần ${x.week}${x.days < 7 ? '*' : ''}</td><td>${dayMonth(x.from)} – ${dayMonth(x.to)}</td><td class="number">${x.days}</td><td class="number">${pctText(x.avg, 2)}</td><td class="number">${cmp}</td><td class="number">${numberFormat.format(x.eggs)}</td><td class="number">${numberFormat.format(x.deaths)}</td></tr>`;
+        }).join('') : '<tr><td colspan="7">Chưa có dữ liệu</td></tr>';
+      }
+      // ---- Lọc ngày theo tỷ lệ đẻ ----
+      const flt = { range: '30', op: 'lt', a: 90, b: 95, from: '', to: '' };
+      const num = v => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
+      function renderFilter() {
+        if (!reportOn) return;
+        const all = computedRecords().filter(x => x.rate !== null);
+        let list = all;
+        if (flt.range === 'c') list = all.filter(x => (!flt.from || x.date >= flt.from) && (!flt.to || x.date <= flt.to));
+        else if (flt.range !== '0') list = all.slice(-Number(flt.range));
+        const a = flt.a, b = flt.b;
+        const hit = x => flt.op === 'lt' ? (a !== null && x.rate < a) : flt.op === 'gt' ? (a !== null && x.rate > a) : (a !== null && b !== null && x.rate >= Math.min(a, b) && x.rate <= Math.max(a, b));
+        const cond = flt.op === 'lt' ? `< ${pctText(a, 1)}` : flt.op === 'gt' ? `> ${pctText(a, 1)}` : `${pctText(Math.min(a, b), 1)} – ${pctText(Math.max(a, b), 1)}`;
+        const ready = flt.op === 'bt' ? (a !== null && b !== null) : a !== null;
+        const rows = ready ? list.filter(hit) : [];
+        const cfg = normalizeAlerts(state.alerts);
+        document.querySelector('#fltSub').textContent = !ready ? 'Bấm để mở' : `${rows.length} / ${list.length} ngày khớp ${cond}`;
+        const avg = meanOf(rows.map(x => x.rate)), lo = rows.length ? Math.min(...rows.map(x => x.rate)) : null, hi = rows.length ? Math.max(...rows.map(x => x.rate)) : null;
+        document.querySelector('#fltSum').innerHTML = ready ? `<div class="chip main"><b>${rows.length} / ${list.length} ngày</b><span>khớp điều kiện ${cond}${list.length ? ` (${(rows.length / list.length * 100).toFixed(0)}%)` : ''}</span></div><div class="chip"><b>${pctText(avg)}</b><span>trung bình các ngày khớp</span></div><div class="chip"><b>${pctText(lo)} – ${pctText(hi)}</b><span>thấp nhất – cao nhất</span></div>` : '<div class="chip"><span>Nhập giá trị tỷ lệ đẻ để lọc</span></div>';
+        document.querySelector('#fltBody').innerHTML = rows.length ? rows.slice().reverse().map(x => `<tr><td>${formatDate(x.date)}</td><td>Tuần ${Math.floor(x.ageDays / 7)}</td><td class="number"><strong>${pctText(x.rate, 2)}</strong></td><td class="number">${numberFormat.format(x.eggs)}</td><td class="number">${numberFormat.format(x.deaths)}</td></tr>`).join('') : `<tr><td colspan="5" class="flt-empty">${ready ? 'Không có ngày nào khớp điều kiện' : '—'}</td></tr>`;
+      }
+      document.querySelector('#fltToggle').addEventListener('click', () => {
+        const t = document.querySelector('#fltToggle'), open = t.getAttribute('aria-expanded') !== 'true';
+        t.setAttribute('aria-expanded', open ? 'true' : 'false'); document.querySelector('#fltBodyWrap').hidden = !open;
+      });
+      function syncFilterUi() {
+        document.querySelectorAll('#fltRange button').forEach(b => b.classList.toggle('on', b.dataset.r === flt.range));
+        document.querySelector('#fltDates').hidden = flt.range !== 'c';
+        document.querySelector('#fltB').hidden = flt.op !== 'bt'; document.querySelector('#fltAnd').hidden = flt.op !== 'bt';
+        const key = flt.op === 'bt' ? 'bt' + flt.a + flt.b : flt.op + flt.a;
+        document.querySelectorAll('#fltPresets button').forEach(b => b.classList.toggle('on', b.dataset.p === key));
+      }
+      document.querySelectorAll('#fltRange button').forEach(b => b.addEventListener('click', () => {
+        flt.range = b.dataset.r;
+        if (flt.range === 'c' && !flt.from) { const all = computedRecords(); if (all.length) { flt.to = all[all.length - 1].date; flt.from = all[Math.max(0, all.length - 30)].date; document.querySelector('#fltFrom').value = flt.from; document.querySelector('#fltTo').value = flt.to; } }
+        syncFilterUi(); renderFilter();
+      }));
+      document.querySelector('#fltFrom').addEventListener('input', e => { flt.from = e.target.value; renderFilter(); });
+      document.querySelector('#fltTo').addEventListener('input', e => { flt.to = e.target.value; renderFilter(); });
+      document.querySelector('#fltOp').addEventListener('change', e => { flt.op = e.target.value; syncFilterUi(); renderFilter(); });
+      document.querySelector('#fltA').addEventListener('input', e => { flt.a = num(e.target.value); syncFilterUi(); renderFilter(); });
+      document.querySelector('#fltB').addEventListener('input', e => { flt.b = num(e.target.value); syncFilterUi(); renderFilter(); });
+      document.querySelectorAll('#fltPresets button').forEach(b => b.addEventListener('click', () => {
+        const p = b.dataset.p;
+        if (p === 'bt9095') { flt.op = 'bt'; flt.a = 90; flt.b = 95; } else { flt.op = p.slice(0, 2); flt.a = Number(p.slice(2)); }
+        document.querySelector('#fltOp').value = flt.op; document.querySelector('#fltA').value = flt.a; document.querySelector('#fltB').value = flt.b;
+        syncFilterUi(); renderFilter();
+      }));
+      function renderReport(records) {
+        if (!reportOn) return;
+        renderKpis(records.filter(x => x.rate !== null), normalizeAlerts(state.alerts));
+        drawRateChart(); drawWeekChart(); renderWeekTable(); syncFilterUi(); renderFilter();
+      }
+      document.querySelectorAll('.view-tab').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
+      document.querySelectorAll('#rateRange button').forEach(btn => btn.addEventListener('click', () => {
+        rateRange = Number(btn.dataset.range); rateHover = -1;
+        document.querySelectorAll('#rateRange button').forEach(b => b.classList.toggle('on', b === btn)); drawRateChart();
+      }));
+      function hoverFromEvent(event) {
+        if (!rateGeo) return;
+        const rect = els.rateChart.getBoundingClientRect(), x = event.clientX - rect.left, { data, X } = rateGeo;
+        let best = 0, dist = Infinity; data.forEach((_, i) => { const d = Math.abs(X(i) - x); if (d < dist) { dist = d; best = i; } });
+        if (best !== rateHover) { rateHover = best; drawRateChart(); }
+      }
+      els.rateChart.addEventListener('pointermove', hoverFromEvent);
+      els.rateChart.addEventListener('pointerdown', hoverFromEvent);
+      els.rateChart.addEventListener('pointerleave', () => { if (rateHover !== -1) { rateHover = -1; drawRateChart(); } });
+
+      // ---- Điền nhanh từ ảnh chụp / tin nhắn
+      function stripVi(text) { return String(text || '').toLowerCase().replace(/đ/g, 'd').normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+      function parseReport(text, today) {
+        const out = { date: null, white: null, red: null, broken: null, deaths: null };
+        let s = stripVi(text).replace(/ /g, ' ');
+        // Ngày: ưu tiên chữ "ngày 27/10", nếu không có thì dạng dd/mm hợp lệ đầu tiên
+        const validDm = (d, m) => d >= 1 && d <= 31 && m >= 1 && m <= 12;
+        let dm = null, dmText = '';
+        const withWord = s.match(/ngay\s*(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{4}|\d{2}))?(?!\d)/);
+        if (withWord && validDm(+withWord[1], +withWord[2])) { dm = withWord; dmText = withWord[0]; }
+        else {
+          const re = /(?<!\d)(\d{1,2})\s*[\/\-.]\s*(\d{1,2})(?:\s*[\/\-.]\s*(\d{4}|\d{2}))?(?!\d)/g; let m;
+          while ((m = re.exec(s))) { if (validDm(+m[1], +m[2])) { dm = m; dmText = m[0]; break; } }
+        }
+        if (dm) {
+          const base = today || todayIso(); let year = dm[3] ? +dm[3] : +base.slice(0, 4); if (year < 100) year += 2000;
+          let iso = `${year}-${String(+dm[2]).padStart(2, '0')}-${String(+dm[1]).padStart(2, '0')}`;
+          if (!dm[3] && iso > base) iso = `${year - 1}-${iso.slice(5)}`;
+          out.date = iso; s = s.replace(dmText, ' ');
+        }
+        s = s.replace(/\d{1,2}\s*:\s*\d{2}/g, ' ');   // bỏ giờ (18:39)
+        const cats = [
+          ['deaths', /chet|tu vong/g],
+          ['broken', /\bvo\b|nho xau|xau|dap|nut|hu hong|\bbe\b/g],
+          ['red', /\bdo\b/g],
+          ['white', /trang/g]
+        ];
+        // tách thành các đoạn theo dòng, dấu ; và dấu phẩy theo sau là khoảng trắng; đoạn không có số thì gộp vào đoạn trước
+        const parts = []; 
+        s.split(/\r?\n/).forEach(line => line.split(/;|,\s+/).forEach(seg => {
+          if (!/\d/.test(seg) && parts.length) parts[parts.length - 1] += ' ' + seg; else parts.push(seg);
+        }));
+        const numRe = /\d{1,3}(?:[.,]\d{3})+(?!\d)|\d+/g;
+        parts.forEach(seg => {
+          const nums = []; let m;
+          numRe.lastIndex = 0;
+          while ((m = numRe.exec(seg))) nums.push({ at: m.index, value: Number(m[0].replace(/[.,]/g, '')) });
+          if (!nums.length) return;
+          const hits = cats.map(([key, re]) => { re.lastIndex = 0; const h = re.exec(seg); return h ? { key, at: h.index } : null; }).filter(Boolean);
+          if (!hits.length) return;
+          if (nums.length === 1) { const first = hits[0]; if (out[first.key] === null) out[first.key] = nums[0].value; return; }
+          // Nhiều số trong một đoạn: nếu số đứng trước chữ ("36000 trắng 410 đỏ") thì ghép với số ngay trước chữ; ngược lại ghép với số ngay sau chữ ("trắng 36000 đỏ 410")
+          const used = new Set(), sorted = hits.sort((x, y) => x.at - y.at), numberFirst = nums[0].at < sorted[0].at;
+          sorted.forEach(hit => {
+            let best = -1;
+            if (numberFirst) { nums.forEach((n, i) => { if (!used.has(i) && n.at < hit.at) best = i; }); }
+            else { best = nums.findIndex((n, i) => !used.has(i) && n.at > hit.at); }
+            if (best < 0) { let dist = Infinity; nums.forEach((n, i) => { if (used.has(i)) return; const d = Math.abs(n.at - hit.at); if (d < dist) { dist = d; best = i; } }); }
+            if (best >= 0) { used.add(best); if (out[hit.key] === null) out[hit.key] = nums[best].value; }
+          });
+        });
+        return out;
+      }
+      const SHOT_LABELS = { date: 'ngày', white: 'trứng trắng', red: 'trứng đỏ', broken: 'trứng vỡ', deaths: 'gà chết' };
+      function setShotStatus(text, isError) { els.shotStatus.textContent = text; els.shotStatus.classList.toggle('error', !!isError); }
+      function fillFromText(text) {
+        const res = parseReport(text, canWrite() && isEntry() ? serverToday() : todayIso());
+        const found = Object.keys(SHOT_LABELS).filter(key => res[key] !== null);
+        if (!found.length) { setShotStatus('Chưa tìm thấy số liệu trong nội dung này. Hãy sửa lại chữ trong ô bên trên (ví dụ "36000 quả trắng") rồi bấm Điền vào form.', true); return false; }
+        if (res.date && !(isEntry() && res.date > serverToday())) { els.date.value = res.date; editingDate = null; els.save.textContent = 'Lưu số liệu'; els.editNotice.classList.remove('show'); updateLockUi(); }
+        else if (res.date) setShotStatus('Ngày trong tin nhắn chưa tới nên chưa điền ngày.', true);
+        [['white', 'white'], ['red', 'red'], ['broken', 'broken'], ['deaths', 'deaths']].forEach(([key, field]) => { els[field].value = res[key] === null ? '' : String(res[key]); });
+        const missing = Object.keys(SHOT_LABELS).filter(key => res[key] === null);
+        const line = found.map(key => key === 'date' ? `ngày ${formatDate(res.date)}` : `${SHOT_LABELS[key]} ${numberFormat.format(res[key])}`).join(' · ');
+        setShotStatus(`Đã điền: ${line}.${missing.length ? ` Chưa thấy: ${missing.map(key => SHOT_LABELS[key]).join(', ')} (để trống hoặc 0).` : ''} Hãy kiểm tra lại rồi bấm Lưu số liệu.`, false);
+        return true;
+      }
+      let tesseractPromise = null;
+      function loadTesseract() {
+        if (window.Tesseract) return Promise.resolve(window.Tesseract);
+        if (!tesseractPromise) tesseractPromise = new Promise((resolve, reject) => {
+          const tag = document.createElement('script'); tag.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+          tag.onload = () => resolve(window.Tesseract); tag.onerror = () => { tesseractPromise = null; reject(new Error('Không tải được bộ đọc chữ (cần có mạng)')); };
+          document.head.appendChild(tag);
+        });
+        return tesseractPromise;
+      }
+      async function prepareImage(file) {
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(3, Math.max(1, 1400 / bitmap.width));
+        const canvas = document.createElement('canvas'); canvas.width = Math.round(bitmap.width * scale); canvas.height = Math.round(bitmap.height * scale);
+        const ctx = canvas.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height), d = img.data;
+        for (let i = 0; i < d.length; i += 4) { const y = d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11; d[i] = d[i + 1] = d[i + 2] = y; }
+        ctx.putImageData(img, 0, 0);
+        return canvas;
+      }
+      let shotBusy = false;
+      async function readShot(file) {
+        if (!file || shotBusy) return;
+        shotBusy = true; els.shotBtn.disabled = true; setShotStatus('Đang tải bộ đọc chữ… (lần đầu hơi lâu, cần có mạng)', false);
+        try {
+          const canvas = await prepareImage(file), T = await loadTesseract();
+          const result = await T.recognize(canvas, 'vie', { logger: m => { if (m.status === 'recognizing text') setShotStatus(`Đang đọc ảnh… ${Math.round((m.progress || 0) * 100)}%`, false); } });
+          const text = String(result && result.data && result.data.text || '').trim();
+          els.shotText.value = text;
+          if (!text) setShotStatus('Không đọc được chữ trong ảnh. Hãy thử ảnh rõ hơn hoặc dán nội dung tin nhắn.', true);
+          else fillFromText(text);
+        } catch (error) { setShotStatus(`Không đọc được ảnh: ${error.message}. Bạn có thể dán nội dung tin nhắn vào ô bên dưới.`, true); }
+        finally { shotBusy = false; els.shotBtn.disabled = false; els.shotFile.value = ''; }
+      }
+      els.shotBtn.addEventListener('click', () => els.shotFile.click());
+      els.shotFile.addEventListener('change', () => readShot(els.shotFile.files && els.shotFile.files[0]));
+      els.shotFill.addEventListener('click', () => fillFromText(els.shotText.value));
+      els.clear.addEventListener('click', resetForm);
+      document.querySelector('#dateBtn').addEventListener('click', () => {
+        try { if (els.date.showPicker) { els.date.showPicker(); return; } } catch (_) { /* dùng cách dự phòng */ }
+        els.date.focus(); els.date.click();
+      });
+      els.saveAlerts.addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const read = input => Number(String(input.value).replace(',', '.'));
+        const next = { deathDay: read(els.alertDeathDay), death7: read(els.alertDeath7), rateMin: read(els.alertRateMin), rateDrop: read(els.alertRateDrop) };
+        if (Object.values(next).some(value => !Number.isFinite(value) || value < 0 || value > 100)) { showToast('Ngưỡng phải là số từ 0 đến 100.', true); return; }
+        state.alerts = normalizeAlerts(next); saveState(); queueFlock(); lastAlertSignature = null; render(); showToast('Đã lưu ngưỡng cảnh báo.');
+      });
+      els.resetAlerts.addEventListener('click', () => {
+        if (!isAdmin()) return;
+        state.alerts = { ...DEFAULT_ALERTS }; saveState(); queueFlock(); lastAlertSignature = null; render(); showToast('Đã đặt ngưỡng về mặc định.');
+      });
+      els.saveFlock.addEventListener('click', () => {
+        if (!isAdmin()) return;
+        state.initialFlock = safeNumber(els.initialFlock.value); saveState(); queueFlock(); render(); showToast(state.initialFlock ? 'Đã lưu số gà đầu kỳ.' : 'Đã đặt số gà đầu kỳ về 0.');
+      });
+      els.history.addEventListener('click', event => {
+        const edit = event.target.closest('[data-edit]'); const del = event.target.closest('[data-delete]');
+        if (edit) { startEdit(edit.dataset.edit); return; }
+        if (del) { removeRecord(del.dataset.delete); return; }
+        const detail = event.target.closest('[data-detail]'); if (detail) openDay(detail.dataset.detail);
+      });
+      // ---- Duyệt số liệu nhập liệu (dùng chung cho thẻ "Chờ duyệt" và cửa sổ hiện lên)
+      let subsVer = '', apvCurrent = null, apvBusy = false;
+      const seenSubs = new Set();
+      const subKey = s => `${s.date}|${s.by}|${s.at}`;
+      async function decideSub(date, kind) {
+        if (!isAdmin() || apvBusy) return;
+        const target = subs.find(s => s.date === date);
+        if (kind === 'reject' && !window.confirm(`Từ chối số liệu ngày ${formatDate(date)}? Số liệu này sẽ bị bỏ, người nhập có thể gửi lại.`)) return;
+        apvBusy = true; els.apvError.hidden = true;
+        // Hiện kết quả ngay, rồi mới gửi lên máy chủ (nếu lỗi thì khôi phục)
+        subs = subs.filter(s => s.date !== date); render();
+        try {
+          await callScript({ action: kind === 'approve' ? 'approve' : 'rejectSub', date });
+          showToast(kind === 'approve' ? 'Đã duyệt và ghi vào sổ.' : 'Đã từ chối số liệu.');
+          closeApprove(); apvBusy = false;
+        } catch (error) {
+          apvBusy = false;
+          if (isAuthError(error)) { forceLogout('Mã đăng nhập không còn hiệu lực. Hãy đăng nhập lại.'); return; }
+          if (target) { subs = [target, ...subs]; render(); }
+          showToast(error.message, true);
+          if (!els.apvModal.hidden) { els.apvError.textContent = error.message; els.apvError.hidden = false; }
+        }
+        pullSync(); 
+      }
+      function closeApprove() { els.apvModal.hidden = true; apvCurrent = null; setTimeout(promptSubs, 250); }
+      function showApprove(s) {
+        apvCurrent = s; seenSubs.add(subKey(s));
+        const time = s.at ? new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(new Date(s.at)) : '';
+        els.apvMeta.textContent = `${s.by} gửi số liệu ngày ${formatDate(s.date)}${time ? ' lúc ' + time : ''}`;
+        const box = (cls, label, value) => `<div class="${cls}"><span>${label}</span><strong>${numberFormat.format(value)}</strong></div>`;
+        els.apvValues.innerHTML = box('w', 'Trứng trắng', s.whiteEggs) + box('r', 'Trứng đỏ', s.redEggs) + box('b', 'Trứng vỡ', s.brokenEggs) + box('d', 'Gà chết', s.deaths) + (s.notes ? `<div class="note"><span>Ghi chú</span><strong>${escapeHtml(s.notes)}</strong></div>` : '');
+        els.apvWarn.hidden = !(s.had && s.old);
+        if (s.had && s.old) els.apvWarn.textContent = `Ngày này đã có số trong sổ (trắng ${numberFormat.format(s.old.whiteEggs)}, đỏ ${numberFormat.format(s.old.redEggs)}, vỡ ${numberFormat.format(s.old.brokenEggs)}, chết ${numberFormat.format(s.old.deaths)}). Bấm OK sẽ ghi đè số này.`;
+        els.apvError.hidden = true;
+        const others = subs.length - 1; els.apvMore.textContent = others > 0 ? `Còn ${others} số liệu khác đang chờ duyệt.` : '';
+        els.apvModal.hidden = false; els.apvOk.focus();
+        if (document.hidden && window.Notification && Notification.permission === 'granted') { try { new Notification('Có số liệu chờ duyệt', { body: els.apvMeta.textContent }); } catch (_) { /* bỏ qua */ } }
+      }
+      function promptSubs() {
+        if (!isAdmin() || !els.apvModal.hidden || apvBusy) return;
+        const next = subs.find(s => !seenSubs.has(subKey(s)));
+        if (next) showApprove(next);
+      }
+      els.apvOk.addEventListener('click', () => { if (apvCurrent) decideSub(apvCurrent.date, 'approve'); });
+      els.apvNo.addEventListener('click', () => { if (apvCurrent) decideSub(apvCurrent.date, 'reject'); });
+      els.apvLater.addEventListener('click', closeApprove);
+      els.subsList.addEventListener('click', event => {
+        if (!isAdmin()) return;
+        const ok = event.target.closest('[data-approve]'), no = event.target.closest('[data-rejectsub]');
+        if (ok) decideSub(ok.dataset.approve, 'approve'); else if (no) decideSub(no.dataset.rejectsub, 'reject');
+      });
+      // Kiểm tra nhẹ mỗi vài giây: chỉ hỏi "số phiên bản" của hàng chờ duyệt; có thay đổi mới tải lại số liệu
+      let quickTick = 0;
+      async function quickPoll() {
+        if (document.visibilityState === 'hidden' && !isAdmin()) return;
+        if (!(isAdmin() || isEntry()) || !syncReady() || pulling || syncing || apvBusy) return;
+        quickTick++; if (isEntry() && quickTick % 2) return;   // nhập liệu hỏi thưa hơn (khoảng 10 giây)
+        try { const res = await callScript({ action: 'subs' }); if (res && res.ver !== undefined && String(res.ver) !== subsVer) await pullSync(); } catch (error) { if (isAuthError(error)) forceLogout('Mã đăng nhập không còn hiệu lực. Hãy đăng nhập lại.'); }
+      }
+      setInterval(quickPoll, 5000);
+      els.entryBody.addEventListener('click', event => { const edit = event.target.closest('[data-edit]'); if (edit) startEdit(edit.dataset.edit); });
+      els.exportCsv.addEventListener('click', exportCsv); els.backup.addEventListener('click', backup); els.importBtn.addEventListener('click', () => els.importFile.click());
+      els.importFile.addEventListener('change', async () => {
+        const file = els.importFile.files?.[0]; if (!file) return;
+        if (!isAdmin()) { els.importFile.value = ''; return; }
+        try {
+          const backupData = JSON.parse(await file.text());
+          if (!backupData || !Array.isArray(backupData.records)) throw new Error('invalid');
+          if (!window.confirm('Việc nhập bản sao sẽ thay thế dữ liệu hiện có trên máy này. Tiếp tục?')) return;
+          state = { version: DATA_VERSION, initialFlock: safeNumber(backupData.initialFlock), records: backupData.records.filter(validRecord).map(normalizeRecord) };
+          saveState(); resetForm(); render(); showToast(`Đã nhập ${state.records.length} bản ghi.`);
+        } catch (_) { showToast('Không đọc được file sao lưu. Hãy chọn file JSON được tạo từ ứng dụng này.', true); }
+        finally { els.importFile.value = ''; }
+      });
+      window.addEventListener('resize', () => { renderChart(computedRecords()); renderReport(computedRecords()); });
+      // Vẽ lại biểu đồ ngay khi khung có kích thước thật (lần tải đầu, mở/đóng tab, xoay màn hình...), không cần tải lại trang
+      if (typeof ResizeObserver !== 'undefined') {
+        const seen = new Map(); let raf = 0;
+        const ro = new ResizeObserver(entries => {
+          let changed = false;
+          entries.forEach(en => { const k = Math.round(en.contentRect.width) + 'x' + Math.round(en.contentRect.height); if (seen.get(en.target) !== k) { seen.set(en.target, k); changed = true; } });
+          if (changed && !raf) raf = requestAnimationFrame(() => { raf = 0; renderChart(computedRecords()); renderReport(computedRecords()); });
+        });
+        [els.chart, els.rateChart, els.weekChart].forEach(c => { if (c && c.parentElement) ro.observe(c.parentElement); });
+      }
+      // ===== Đăng nhập, phân quyền & dùng chung qua Google Sheet (Google Apps Script) =====
+      // Quyền thật sự do máy chủ (Code.gs) kiểm tra; phần ẩn nút trong app chỉ để dễ dùng.
+      const SYNC_KEY = 'quan-ly-trai-ga-sync-v3';
+      const POLL_MS = 45000;
+      const syncEls = { body: document.querySelector('#syncBody'), toggle: document.querySelector('#syncToggle'), url: document.querySelector('#syncUrl'), token: document.querySelector('#syncToken'), login: document.querySelector('#syncSaveButton'), all: document.querySelector('#syncAllButton'), refresh: document.querySelector('#syncRefreshButton'), logout: document.querySelector('#logoutButton'), status: document.querySelector('#syncStatus'), message: document.querySelector('#syncMessage') };
+      let sync = { url: '', token: '', role: '', name: '', today: '', flockPending: false, pending: {} };
+      let syncing = false, pulling = false, changeStamp = 0;
+      let lockedDates = [];   // các ngày đã được duyệt/ghi vào sổ (tài khoản nhập liệu không sửa được)
+      let subs = [];   // số liệu nhập liệu đã gửi, đang chờ quản trị viên duyệt
+
+      function setSyncOpen(open) { syncEls.body.hidden = !open; syncEls.toggle.setAttribute('aria-expanded', String(open)); }
+      syncEls.toggle.addEventListener('click', () => setSyncOpen(syncEls.body.hidden));
+      syncEls.toggle.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSyncOpen(syncEls.body.hidden); } });
+      function isAdmin() { return sync.role === 'admin'; }
+      function isEntry() { return sync.role === 'entry'; }
+      function canWrite() { return sync.role === 'admin' || sync.role === 'entry'; }
+      function serverToday() { return /^\d{4}-\d{2}-\d{2}$/.test(sync.today || '') ? sync.today : todayIso(); }
+      function roleLabel() { return sync.role === 'admin' ? `Quản trị${sync.name && sync.name !== 'Quản trị' ? ' · ' + sync.name : ''}` : sync.role === 'viewer' ? `Chỉ xem${sync.name ? ' · ' + sync.name : ''}` : sync.role === 'entry' ? `Nhập liệu${sync.name ? ' · ' + sync.name : ''}` : 'Chưa đăng nhập'; }
+      let formRoleSeen = '__none__';
+      function applyRole() {
+        const cls = document.body.classList;
+        cls.toggle('locked', !sync.role); cls.toggle('is-admin', sync.role === 'admin'); cls.toggle('is-viewer', sync.role === 'viewer'); cls.toggle('is-entry', sync.role === 'entry');
+        els.storageNote.textContent = roleLabel();
+        if (reportOn && (!sync.role || isEntry())) { reportOn = false; document.body.classList.remove('view-report'); }
+        setSyncOpen(!sync.role);   // chưa đăng nhập thì mở sẵn khung đăng nhập; đã đăng nhập thì thu gọn
+        els.date.max = sync.role === 'entry' ? serverToday() : '';
+        if (formRoleSeen !== sync.role) { formRoleSeen = sync.role; openForm(sync.role === 'entry'); }   // tài khoản nhập liệu: mở sẵn khung nhập
+        els.formTitle.textContent = sync.role === 'entry' ? 'Nhập số liệu hôm nay' : 'Nhập số liệu trong ngày';
+        els.formDesc.textContent = sync.role === 'entry' ? 'Chọn ngày cần nhập (mặc định hôm nay). Số liệu sẽ được gửi cho quản trị viên duyệt rồi mới ghi vào sổ; ngày đã được duyệt thì không sửa được (nhờ quản trị viên).' : 'Mỗi ngày có một bản ghi. Lưu lại ngày đã có dữ liệu sẽ cập nhật bản ghi đó.';
+        if (sync.role === 'entry' && !editingDate && !els.date.value) els.date.value = serverToday();
+      }
+      function loadSync() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(SYNC_KEY));
+          if (saved && typeof saved === 'object') sync = { url: String(saved.url || ''), token: String(saved.token || ''), role: ['admin', 'viewer', 'entry'].includes(saved.role) ? saved.role : '', name: String(saved.name || ''), today: String(saved.today || ''), flockPending: !!saved.flockPending, pending: saved.pending && typeof saved.pending === 'object' ? saved.pending : {} };
+        } catch (_) { /* dùng cấu hình mặc định */ }
+        if (!sync.token) sync.role = '';
+        if (!sync.url && DEFAULT_SYNC_URL) sync.url = DEFAULT_SYNC_URL;
+        syncEls.url.value = sync.url; syncEls.token.value = sync.token;
+        applyRole(); refreshSyncStatus();
+      }
+      function saveSync() { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (_) { /* bỏ qua */ } }
+      function syncReady() { return /^https:\/\/script\.google\.com\/.+\/exec$/.test(sync.url) && sync.token.length > 0; }
+      function setSyncStatus(text, kind) { syncEls.status.textContent = text; syncEls.status.className = kind || ''; }
+      function setSyncMessage(text, isError) { syncEls.message.textContent = text; syncEls.message.classList.toggle('error', !!isError); if (isError && text) setSyncOpen(true); }
+      function refreshSyncStatus() {
+        const pending = Object.keys(sync.pending).length;
+        if (!syncReady() || !sync.role) setSyncStatus('Chưa đăng nhập');
+        else if (pending) setSyncStatus(`Chờ gửi ${pending} ngày`, 'error');
+        else setSyncStatus(roleLabel(), 'ok');
+      }
+      function rowPayload(row) { return { date: row.date, whiteEggs: safeNumber(row.whiteEggs), redEggs: safeNumber(row.redEggs), brokenEggs: safeNumber(row.brokenEggs), huyEggs: safeNumber(row.huyEggs), deaths: safeNumber(row.deaths), notes: String(row.notes || '').slice(0, 240) }; }
+      async function callScript(payload) {
+        const response = await fetch(sync.url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ token: sync.token, ...payload }) });
+        const data = await response.json();
+        if (!data.ok) throw new Error(data.error || 'Google Sheet báo lỗi');
+        return data;
+      }
+      function nowTime() { return new Intl.DateTimeFormat('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()); }
+      function recordsSignature(records) { return JSON.stringify([...records].map(normalizeRecord).sort((a, b) => a.date.localeCompare(b.date))); }
+      function isAuthError(error) { return /Sai mã bảo mật/.test(String(error && error.message)); }
+
+      // Xóa phiên đăng nhập và số liệu lưu tạm trên máy này
+      function forceLogout(message) {
+        sync.role = ''; sync.name = ''; sync.token = ''; sync.pending = {}; sync.flockPending = false; subs = [];
+        state = { version: DATA_VERSION, initialFlock: 0, records: [], alerts: { ...DEFAULT_ALERTS } }; saveState(); saveSync();
+        editingDate = null; syncEls.token.value = '';
+        applyRole(); resetForm(); render(); setSyncStatus('Chưa đăng nhập');
+        if (message) setSyncMessage(message, true);
+      }
+
+      // Có thay đổi trên máy này: ghi nhớ để gửi lên Sheet (chỉ quản trị viên mới có thay đổi)
+      function queueSync(date, action) {
+        changeStamp++;
+        if (!canWrite() || !syncReady()) return;
+        sync.pending[date] = action; saveSync(); refreshSyncStatus(); flushSync();
+      }
+      function queueFlock() {
+        changeStamp++; if (!isAdmin()) return;
+        sync.flockPending = true; saveSync();
+        if (syncReady()) flushFlock();
+      }
+      async function flushFlock() {
+        if (!isAdmin() || !sync.flockPending || !syncReady()) return;
+        try { await callScript({ action: 'setConfig', initialFlock: state.initialFlock, alerts: normalizeAlerts(state.alerts) }); sync.flockPending = false; saveSync(); } catch (error) { if (isAuthError(error)) forceLogout('Mã đăng nhập không còn hiệu lực. Hãy đăng nhập lại.'); }
+      }
+      async function flushSync() {
+        if (syncing || !canWrite() || !syncReady() || !Object.keys(sync.pending).length) return;
+        syncing = true; setSyncStatus('Đang gửi…');
+        const snapshot = { ...sync.pending };
+        try {
+          const rows = [], deletes = [];
+          Object.entries(snapshot).forEach(([date, action]) => {
+            const record = action === 'u' ? (isEntry() ? subs.find(item => item.date === date) : state.records.find(item => item.date === date)) : null;
+            if (record) rows.push(rowPayload(record)); else deletes.push(date);
+          });
+          const result = await callScript({ action: 'sync', rows, deletes });
+          Object.entries(snapshot).forEach(([date, action]) => { if (sync.pending[date] === action) delete sync.pending[date]; });
+          saveSync(); if (isEntry()) render();
+          const missing = result.missing || [];
+          if (missing.length) { setSyncStatus('Có ngày chưa có trong Sheet', 'error'); setSyncMessage(`Sheet chưa có dòng cho ngày: ${missing.map(formatDate).join(', ')}. Hãy thêm các ngày này vào cột A của tab TRANG TRẠI Q.NINH-QB.${result.debug ? ' Chi tiết: ' + JSON.stringify(result.debug) : ''}`, true); }
+          else { setSyncStatus(`Đã gửi lúc ${nowTime()}`, 'ok'); setSyncMessage('Số liệu đã được cập nhật lên Google Sheet.', false); }
+          syncing = false;
+          if (Object.keys(sync.pending).length) await flushSync();
+        } catch (error) {
+          syncing = false;
+          if (isAuthError(error)) { forceLogout('Mã đăng nhập không còn hiệu lực. Hãy đăng nhập lại.'); return; }
+          if (/^Không được lưu/.test(String(error.message))) {
+            // Máy chủ từ chối hẳn (không phải lỗi mạng): bỏ số liệu chờ gửi, tải lại số liệu thật từ Sheet
+            sync.pending = {}; saveSync(); setSyncStatus('Chưa lưu được', 'error'); setSyncMessage(error.message, true); showToast(error.message, true);
+            pullSync(); return;
+          }
+          refreshSyncStatus();
+          setSyncMessage(`Chưa gửi được (${error.message}). App sẽ tự thử lại khi có mạng hoặc ở lượt làm mới tiếp theo.`, true);
+        }
+      }
+
+      // Tải số liệu mới nhất từ Sheet để mọi máy thấy giống nhau
+      async function pullSync(manual) {
+        if (pulling || syncing || !syncReady() || !sync.role) return;
+        pulling = true;
+        try {
+          if (Object.keys(sync.pending).length) await flushSync();
+          if (sync.flockPending) await flushFlock();
+          const stamp = changeStamp; const subsSig = JSON.stringify(subs);
+          const data = await callScript({ action: 'list' });
+          if (!Array.isArray(data.records)) throw new Error('Script trên Google chưa phải bản mới nhất. Hãy dán lại Code.gs và triển khai phiên bản mới');
+          if (data.role && data.role !== sync.role) { sync.role = data.role; sync.name = data.name || sync.name; applyRole(); }
+          if (data.today) { sync.today = String(data.today); if (isEntry()) els.date.max = sync.today; }
+          if (stamp !== changeStamp) return;   // vừa có thay đổi trên máy này trong lúc tải: bỏ lượt này, lượt sau sẽ làm mới
+          const records = data.records.filter(validRecord).map(normalizeRecord);
+          const keepSubs = Object.keys(sync.pending).map(d => subs.find(s => s.date === d)).filter(Boolean);
+          if (Array.isArray(data.submissions)) subs = [...data.submissions.filter(s => !keepSubs.some(k => k.date === s.date)), ...keepSubs];
+          // Giữ lại các thay đổi của quản trị viên chưa gửi được
+          Object.entries(sync.pending).forEach(([date, action]) => {
+            const index = records.findIndex(row => row.date === date);
+            if (action === 'u') {
+              const local = state.records.find(row => row.date === date);
+              if (local) { if (index >= 0) records[index] = local; else records.push(local); }
+            } else if (index >= 0) records.splice(index, 1);
+          });
+          let flock = state.initialFlock, alerts = normalizeAlerts(state.alerts);
+          if (!sync.flockPending) {
+            if (data.initialFlock !== null && data.initialFlock !== undefined) flock = safeNumber(data.initialFlock);
+            if (data.alerts) alerts = normalizeAlerts(data.alerts);
+          }
+          if (Array.isArray(data.locked)) lockedDates = data.locked;
+          if (data.subsVer !== undefined) subsVer = String(data.subsVer);
+          const changed = JSON.stringify(subs) !== subsSig || recordsSignature(state.records) !== recordsSignature(records) || flock !== state.initialFlock || JSON.stringify(alerts) !== JSON.stringify(normalizeAlerts(state.alerts));
+          state.records = records; state.initialFlock = flock; state.alerts = alerts; saveState(); saveSync();
+          if (changed) render();
+          promptSubs();
+          refreshSyncStatus();
+          if (!Object.keys(sync.pending).length) setSyncStatus(`Đã làm mới lúc ${nowTime()}`, 'ok');
+          if (manual) { setSyncMessage('Đã làm mới dữ liệu từ Google Sheet.', false); showToast(changed ? 'Đã cập nhật số liệu mới từ Google Sheet.' : 'Số liệu đã là mới nhất.'); }
+          pulling = false;
+          if (Object.keys(sync.pending).length) await flushSync();
+          if (sync.flockPending) await flushFlock();
+        } catch (error) {
+          if (isAuthError(error)) { forceLogout('Mã đăng nhập không còn hiệu lực hoặc đã bị thu hồi. Hãy đăng nhập lại.'); return; }
+          setSyncStatus('Chưa làm mới được', 'error');
+          setSyncMessage(`Không làm mới được: ${error.message}`, true);
+        } finally { pulling = false; }
+      }
+
+      syncEls.login.addEventListener('click', async () => {
+        sync.url = syncEls.url.value.trim(); sync.token = syncEls.token.value.trim();
+        if (!syncReady()) { setSyncStatus('Chưa đăng nhập'); setSyncMessage('Địa chỉ phải có dạng https://script.google.com/macros/s/.../exec và cần nhập mã đăng nhập.', true); return; }
+        setSyncStatus('Đang đăng nhập…');
+        try {
+          const result = await callScript({ action: 'login' });
+          // Đổi người đăng nhập: bỏ số liệu tạm của người trước
+          state = { version: DATA_VERSION, initialFlock: 0, records: [], alerts: { ...DEFAULT_ALERTS } };
+          sync.role = ['admin', 'entry'].includes(result.role) ? result.role : 'viewer'; sync.name = String(result.name || ''); sync.today = String(result.today || ''); sync.pending = {}; sync.flockPending = false; subs = []; saveState(); saveSync();
+          applyRole(); resetForm(); render(); refreshSyncStatus();
+          if (sync.role === 'admin' && window.Notification && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (_) { /* bỏ qua */ } }
+          setSyncMessage(`Đã đăng nhập với quyền ${sync.role === 'admin' ? 'quản trị' : sync.role === 'entry' ? 'nhập liệu' : 'chỉ xem'}. Đang tải số liệu…`, false);
+          await pullSync(true);
+        } catch (error) {
+          sync.role = ''; sync.token = isAuthError(error) ? '' : sync.token; saveSync(); applyRole(); setSyncStatus('Chưa đăng nhập', 'error');
+          setSyncMessage(isAuthError(error) ? 'Mã đăng nhập không đúng.' : `Không kết nối được: ${error.message}`, true);
+        }
+      });
+      syncEls.refresh.addEventListener('click', () => pullSync(true));
+      syncEls.logout.addEventListener('click', () => {
+        if (Object.keys(sync.pending).length && !window.confirm('Còn số liệu chưa gửi lên Google Sheet và sẽ mất nếu đăng xuất. Vẫn đăng xuất?')) return;
+        forceLogout(''); setSyncMessage('Đã đăng xuất.', false);
+      });
+      syncEls.all.addEventListener('click', async () => {
+        if (!isAdmin()) return;
+        if (!window.confirm(`Gửi ${state.records.length} ngày lên Google Sheet? Các cột Chết, Trứng nguyên, Đỏ, Vỡ, Huỷ và Ghi chú của những ngày này trong Sheet sẽ được ghi đè theo số liệu trong app.`)) return;
+        setSyncStatus('Đang gửi…');
+        try {
+          const result = await callScript({ action: 'sync', rows: sortedRecords().map(rowPayload), deletes: [] });
+          sync.pending = {}; saveSync(); refreshSyncStatus();
+          const missing = result.missing || [];
+          setSyncMessage(`Đã cập nhật ${result.updated} ngày lên Google Sheet.${missing.length ? ` Có ${missing.length} ngày chưa có dòng trong Sheet (${missing.slice(0, 5).map(formatDate).join(', ')}${missing.length > 5 ? '…' : ''}).` : ''}${result.debug ? ' Chi tiết: ' + JSON.stringify(result.debug) : ''}`, missing.length > 0);
+          showToast('Đã gửi toàn bộ dữ liệu.');
+        } catch (error) { if (isAuthError(error)) { forceLogout('Mã đăng nhập không còn hiệu lực. Hãy đăng nhập lại.'); return; } refreshSyncStatus(); setSyncMessage(`Chưa gửi được: ${error.message}`, true); }
+      });
+      setInterval(() => { if (document.visibilityState !== 'hidden') pullSync(); }, POLL_MS);
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') pullSync(); });
+      window.addEventListener('online', () => pullSync());
+
+      loadState(); resetForm(); render(); loadSync(); pullSync();
+    })();
+  </script>
+</body>
+</html>
